@@ -53,6 +53,7 @@ namespace Brandsome.DAL.Models
         public DateTime? CreatedDate { get; set; }
         [StringLength(127)]
         public string RecoveryEmail { get; set; }
+        public string Otp { get; set; }
 
         [InverseProperty("User")]
         public virtual ICollection<AspNetUserClaim> AspNetUserClaims { get; set; }

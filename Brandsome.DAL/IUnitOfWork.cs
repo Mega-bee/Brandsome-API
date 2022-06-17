@@ -11,7 +11,7 @@ namespace Brandsome.DAL
     {
 
 
-
+        IAspNetUserRepository UserRepository { get; }
         void Save();
     }
 }

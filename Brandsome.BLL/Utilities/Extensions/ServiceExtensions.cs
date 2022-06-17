@@ -13,6 +13,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.OpenApi.Models;
 using Brandsome.DAL.Models;
 using Brandsome.DAL.Data;
+using Brandsome.BLL.TokenProviders.Utilities;
 
 namespace Brandsome.BLL.Utilities.Extensions
 {
@@ -20,23 +21,30 @@ namespace Brandsome.BLL.Utilities.Extensions
     {
         public static void ConfigureDbContext(this IServiceCollection services, IConfiguration Configuration)
         {
-
+            
+            
             services.AddDbContext<ApplicationDbContext>(options =>
                options.UseSqlServer(
                    Configuration.GetConnectionString("DefaultConnection")));
             services.AddDbContext<BrandsomeDbContext>(options =>
                options.UseSqlServer(
                    Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<ApplicationUser>(options =>
+
+            var builder = services.AddDefaultIdentity<ApplicationUser>(options =>
             {
-                options.SignIn.RequireConfirmedAccount = true;
+                options.SignIn.RequireConfirmedAccount = false;
                 options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 4;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireLowercase = false;
+                options.User.RequireUniqueEmail = false;
             })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            var UserType = builder.UserType;
+            var provider = typeof(NoPasswordTokenProvider<>).MakeGenericType(UserType);
+            builder.AddTokenProvider(AppSetting.NoPasswordTokenProviderName, provider);
+
         }
 
         public static void ConfigureAuthentication(this IServiceCollection services)

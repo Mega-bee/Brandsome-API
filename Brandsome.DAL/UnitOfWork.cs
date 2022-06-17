@@ -22,11 +22,11 @@ namespace Brandsome.DAL
 
         #region private 
 
-
+        private IAspNetUserRepository userRepository;
 
         #endregion
 
-
+        public IAspNetUserRepository UserRepository => userRepository ?? new AspNetUserRepository(_context);
 
         #region public 
 

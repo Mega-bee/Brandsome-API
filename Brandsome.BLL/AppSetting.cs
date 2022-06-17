@@ -8,7 +8,6 @@ namespace Brandsome.BLL
 {
     public static class AppSetting
     {
-        public static string AND = "AND";
-        public static string OR = "OR";
+        public static string NoPasswordTokenProviderName = "NPTokenProvider";
     }
 }
