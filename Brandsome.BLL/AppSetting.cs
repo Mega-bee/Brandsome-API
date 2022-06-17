@@ -9,5 +9,9 @@ namespace Brandsome.BLL
     public static class AppSetting
     {
         public static string NoPasswordTokenProviderName = "NPTokenProvider";
+        public static string AdminRole = "Admin";
+        public static string AdminRoleNormalized = "ADMIN";
+        public static string UserRole = "User";
+        public static string UserRoleNormalized = "USER";
     }
 }

@@ -27,11 +27,25 @@ namespace Brandsome.BLL.Service
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly BrandsomeDbContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        public AuthBO(IUnitOfWork unit, IMapper mapper, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, BrandsomeDbContext context, NotificationHelper notificationHelper) : base(unit, mapper, notificationHelper)
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public AuthBO(IUnitOfWork unit, IMapper mapper, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, BrandsomeDbContext context, NotificationHelper notificationHelper,RoleManager<IdentityRole> roleManager) : base(unit, mapper, notificationHelper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
+            _roleManager = roleManager;
+        }
+
+        private async Task CheckRoles()
+        {
+            if (!await _roleManager.RoleExistsAsync(AppSetting.UserRole))
+            {
+                await _roleManager.CreateAsync(new IdentityRole { Name = AppSetting.UserRole, NormalizedName = AppSetting.UserRoleNormalized });
+            }
+            if (!await _roleManager.RoleExistsAsync(AppSetting.AdminRole))
+            {
+                await _roleManager.CreateAsync(new IdentityRole { Name = AppSetting.AdminRole, NormalizedName = AppSetting.AdminRoleNormalized });
+            }
         }
 
         public async Task<ResponseModel> RequestOtp(string phoneNumber, string userName, string deviceToken)
@@ -40,6 +54,7 @@ namespace Brandsome.BLL.Service
             ResponseModel responseModel = new ResponseModel();
             string Otp = "";
             string content = $"Your OTP is {Otp}";
+            await CheckRoles();
             var user = await _uow.UserRepository.GetAll().Where(x => x.PhoneNumber == phoneNumber).FirstOrDefaultAsync();
             if (user == null)
             {
@@ -57,6 +72,7 @@ namespace Brandsome.BLL.Service
                IdentityResult res= await _userManager.CreateAsync(appUser);
                 if(res.Succeeded)
                 {
+                    await _userManager.AddToRoleAsync(appUser, AppSetting.UserRole);
                      Otp = Helpers.Generate_otp();
                     appUser.Otp = Otp;
                     await _userManager.UpdateAsync(appUser);
@@ -66,14 +82,10 @@ namespace Brandsome.BLL.Service
                     responseModel.StatusCode = 200;
                     responseModel.ErrorMessage = "";
                     return responseModel;
-                    //responseModel.Validation = new ValidationResultModel()
-                    //{
-                    //     ValidationErrors = new List<ValidationError>()
-                    //}
                 } else
                 {
                     responseModel.Data = new DataModel { Data = "", Message = "" };
-                    responseModel.StatusCode = 200;
+                    responseModel.StatusCode = 400;
                     responseModel.ErrorMessage = res.Errors.FirstOrDefault().Description;
                     return responseModel;
                 }
@@ -81,6 +93,76 @@ namespace Brandsome.BLL.Service
             Otp = user.Otp;
             Helpers.SendSMS(phoneNumber, content);
             responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number" };
+            return responseModel;
+        }
+
+        public async Task<ResponseModel> VerifyOtp(string phoneNumber,string otp)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            ApplicationUser appUser = new ApplicationUser();
+            var user = await _uow.UserRepository.GetAll().Where(x => x.PhoneNumber == phoneNumber).Select(x=> new { x.Id, x.Otp}).FirstOrDefaultAsync();
+            if(user == null)
+            {
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                responseModel.StatusCode = 400;
+                responseModel.ErrorMessage = "User not found";
+            } 
+            if(user.Otp == otp)
+            {
+                appUser = await _userManager.FindByIdAsync(user.Id);
+                var roles = await _userManager.GetRolesAsync(appUser);
+                var claims = Tools.GenerateClaims(appUser,roles);
+                string JwtToken = Tools.GenerateJWT(claims);
+                responseModel.Data = new DataModel { Data = JwtToken, Message = "Phone number verified sucessfully" };
+                responseModel.ErrorMessage = "";
+                responseModel.StatusCode = 200;
+                return responseModel;
+            }
+            else
+            {
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                responseModel.StatusCode = 400;
+                responseModel.ErrorMessage = "Incorrect otp";
+                return responseModel;
+            }
+
+        }
+
+        public async Task<ResponseModel> CompleteProfile(CompleteProfile_VM profile,string uid)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            var user = await _userManager.FindByIdAsync(uid);
+            if(user == null)
+            {
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                responseModel.StatusCode = 400;
+                responseModel.ErrorMessage = "User not found";
+                return responseModel;
+            }
+            user.DateOfBirth = profile.Birthday ?? null;
+            user.GenderId = profile.GenderId ?? null;
+            IFormFile file = profile.ImageFile;
+            if(file != null)
+            {
+                //if(user.Image != null)
+                //{
+                //    Helpers.DeleteFile(user.Image, "wwwroot/uploads");
+                //}
+                string NewFileName = await Helpers.SaveFile("wwwroot/uploads", file);
+
+                user.Image = NewFileName;
+            }
+           IdentityResult updateResult =  await _userManager.UpdateAsync(user);
+            if(!updateResult.Succeeded)
+            {
+                responseModel.ErrorMessage = "Failed to update user info";
+                responseModel.StatusCode = 400;
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                return responseModel;
+            }
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = "", Message = "Profile completed" };
             return responseModel;
         }
 

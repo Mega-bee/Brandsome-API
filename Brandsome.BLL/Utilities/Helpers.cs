@@ -137,6 +137,7 @@ namespace Brandsome.BLL.Utilities
             return NewFileName;
         }
 
+
         public static void DeleteFile(string fileName, string path, IWebHostEnvironment hostEnvironment)
         {
             var filePath = Path.Combine(hostEnvironment.ContentRootPath, path, fileName);

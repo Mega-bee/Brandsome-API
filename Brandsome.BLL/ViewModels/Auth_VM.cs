@@ -122,11 +122,10 @@ namespace Brandsome.BLL.ViewModels
 
     public partial class CompleteProfile_VM
     {
-        public string Image { get; set; }
-        public string Name { get; set; }
-        public int GenderId { get; set; }
+        
+        public int? GenderId { get; set; }
         public string PhoneNumber { get; set; }
-        public DateTime Birthdate { get; set; }
+        public DateTime? Birthday { get; set; }
         public IFormFile ImageFile { get; set; }
     }
 

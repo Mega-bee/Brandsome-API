@@ -37,16 +37,20 @@ namespace Brandsome.BLL.Utilities
             return result;
         }
 
-        public static List<Claim> GenerateClaims(ApplicationUser res, AspNetRole role)
+        public static List<Claim> GenerateClaims(ApplicationUser res, IList<string> roles)
         {
             var claims = new List<Claim>()
                 {
                 new Claim(JwtRegisteredClaimNames.Email , res.Email ),
                 new Claim(ClaimTypes.Name , res.UserName),
                 new Claim("UID",res.Id),
-                new Claim(ClaimTypes.Role , role.Name),
+                //new Claim(ClaimTypes.Role , role.Name),
                 new Claim(ClaimTypes.NameIdentifier, res.Id),
                 };
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
             return claims;
         }
 
