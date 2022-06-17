@@ -186,13 +186,13 @@ namespace Brandsome.BLL.Service
         //public async Task<ResponseModel> GetFollowedBusinesses(string uid)
         //{
         //    ResponseModel responseModel = new ResponseModel();
-        //    List<FollowedBusiness_VM> businesses = await _uow.BusinessFollowRepository.GetAll().Where(x=> x.UserId == uid).Select(bf=> new FollowedBusiness_VM
+        //    List<FollowedBusiness_VM> businesses = await _uow.BusinessFollowRepository.GetAll().Where(x => x.UserId == uid).Select(bf => new FollowedBusiness_VM
         //    {
-        //         Id=bf.Id,
-        //          Image = bf.Business.Image,
-        //           Name = bf.Business.BusinessName,
-        //            Type = bf.Business.
-        //    })
+        //        Id = bf.Id,
+        //        Image = bf.Business.Image,
+        //        Name = bf.Business.BusinessName,
+        //        Type = bf.Business.
+        //     })
         //}
         //        public async Task<ResponseModel> EmailSignIn(EmailSignIn_VM model)
         //        {

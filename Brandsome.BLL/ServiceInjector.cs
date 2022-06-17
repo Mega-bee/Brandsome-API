@@ -33,7 +33,10 @@ namespace Brandsome.BLL
 
             _services.AddScoped<IAuthBO, AuthBO>();
             _services.AddScoped<IUnitOfWork, UnitOfWork>();
-            //_services.AddScoped<IGenericRepos<AccProfile>, GenericRepos<AccProfile>>();
+            _services.AddScoped<IGenericRepos<AspNetUser>, GenericRepos<AspNetUser>>();
+            _services.AddScoped<IGenericRepos<Business>, GenericRepos<Business>>();
+            _services.AddScoped<IGenericRepos<BusinessFollow>, GenericRepos<BusinessFollow>>();
+            _services.AddScoped<IGenericRepos<Device>, GenericRepos<Device>>();
             _services.AddScoped<NotificationHelper>();
             _services.AddScoped<ValidationFilterAttribute>();
 
