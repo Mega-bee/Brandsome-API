@@ -166,7 +166,34 @@ namespace Brandsome.BLL.Service
             return responseModel;
         }
 
+        public async Task<ResponseModel> GetAccountSettings(string uid)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            AccountSettings_VM settings = await _uow.UserRepository.GetAll().Where(x=> x.Id == uid).Select(x=> new AccountSettings_VM
+            {
+                 Businesses = x.Businesses.Select(b => new AccountSettingsBusiness_VM
+                 {
+                      Id = b.Id,
+                       Name = b.BusinessName
+                 }).ToList(),
+            }).FirstOrDefaultAsync();
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = settings, Message = "" };
+            return responseModel;
+        }
 
+        //public async Task<ResponseModel> GetFollowedBusinesses(string uid)
+        //{
+        //    ResponseModel responseModel = new ResponseModel();
+        //    List<FollowedBusiness_VM> businesses = await _uow.BusinessFollowRepository.GetAll().Where(x=> x.UserId == uid).Select(bf=> new FollowedBusiness_VM
+        //    {
+        //         Id=bf.Id,
+        //          Image = bf.Business.Image,
+        //           Name = bf.Business.BusinessName,
+        //            Type = bf.Business.
+        //    })
+        //}
         //        public async Task<ResponseModel> EmailSignIn(EmailSignIn_VM model)
         //        {
         //            ResponseModel responseModel = new ResponseModel();

@@ -23,14 +23,17 @@ namespace Brandsome.DAL
         #region private 
 
         private IAspNetUserRepository userRepository;
+        private IBusinessRepository businessRepository;
+        private IBusinessFollowRepository businessFollowRepository;
 
         #endregion
 
-        public IAspNetUserRepository UserRepository => userRepository ?? new AspNetUserRepository(_context);
 
         #region public 
 
-
+        public IAspNetUserRepository UserRepository => userRepository ?? new AspNetUserRepository(_context);
+        public IBusinessRepository BusinessRepository => businessRepository ?? new BusinessRepository(_context);
+        public IBusinessFollowRepository BusinessFollowRepository => businessFollowRepository ?? new BusinessFollowRepository(_context);
         #endregion
 
 

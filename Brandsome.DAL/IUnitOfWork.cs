@@ -12,6 +12,8 @@ namespace Brandsome.DAL
 
 
         IAspNetUserRepository UserRepository { get; }
+        IBusinessRepository BusinessRepository { get; }
+        IBusinessFollowRepository BusinessFollowRepository { get; }
         void Save();
     }
 }
