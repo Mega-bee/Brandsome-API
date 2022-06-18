@@ -53,8 +53,15 @@ namespace Brandsome.DAL.Models
         public DateTime? CreatedDate { get; set; }
         [StringLength(127)]
         public string RecoveryEmail { get; set; }
+        [StringLength(7)]
         public string Otp { get; set; }
+        public int? GenderId { get; set; }
+        [StringLength(255)]
+        public string FcmToken { get; set; }
 
+        [ForeignKey("GenderId")]
+        [InverseProperty("AspNetUsers")]
+        public virtual Gender Gender { get; set; }
         [InverseProperty("User")]
         public virtual ICollection<AspNetUserClaim> AspNetUserClaims { get; set; }
         [InverseProperty("User")]

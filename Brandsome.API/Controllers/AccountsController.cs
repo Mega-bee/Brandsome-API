@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Brandsome.BLL.IServices;
 using Brandsome.BLL.ViewModels;
+using System.Security.Claims;
 
 namespace Brandsome.API.Controllers
 {
@@ -20,6 +21,50 @@ namespace Brandsome.API.Controllers
         {
             _auth = auth;
         }
+
+        [HttpPost]
+        public async Task<IActionResult> RequestOtp([FromForm] string phoneNumber,[FromForm] string username,[FromForm] string fcmToken)
+        {
+            return Ok(await _auth.RequestOtp(phoneNumber, username, fcmToken));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyOtp([FromForm] string phoneNumber, [FromForm] string otp)
+        {
+            return Ok(await _auth.VerifyOtp(phoneNumber, otp));
+        }
+
+       
+
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [HttpGet]
+        public async Task<IActionResult> GetAccountSetings()
+        {
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _auth.GetAccountSettings(uid));
+        }
+
+        
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [HttpPost]
+        public async Task<IActionResult> CompleteProfile([FromForm] CompleteProfile_VM profile)
+        {
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _auth.CompleteProfile(profile, uid));
+        }
+
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        public async Task<IActionResult> GetFollowedBusinessses()
+        {
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _auth.GetFollowedBusinesses(uid));
+        }
+
+
+
+
+
 
         //[HttpPost]
         //public async Task<IActionResult> SignIn([FromForm] EmailSignIn_VM model)

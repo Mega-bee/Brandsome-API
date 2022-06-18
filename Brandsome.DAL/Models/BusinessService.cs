@@ -8,6 +8,11 @@ namespace Brandsome.DAL.Models
 {
     public partial class BusinessService
     {
+        public BusinessService()
+        {
+            Posts = new HashSet<Post>();
+        }
+
         [Key]
         public int Id { get; set; }
         public int? ServiceId { get; set; }
@@ -22,5 +27,7 @@ namespace Brandsome.DAL.Models
         [ForeignKey("ServiceId")]
         [InverseProperty("BusinessServices")]
         public virtual Service Service { get; set; }
+        [InverseProperty("BusinessService")]
+        public virtual ICollection<Post> Posts { get; set; }
     }
 }

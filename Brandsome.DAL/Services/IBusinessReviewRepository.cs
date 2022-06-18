@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Brandsome.DAL.Services
 {
-    public interface IBusinessRepository : IGenericRepos<Business>
+    public interface IBusinessReviewRepository : IGenericRepos<BusinessReview>
     {
     }
 }

@@ -74,7 +74,7 @@ namespace Brandsome.DAL.Repos
             return entity;
         }
 
-        public IQueryable<T> GetAllWithPredicate(Expression<Func<T, bool>> predicate)
+        public IQueryable<T> GetAll(Expression<Func<T, bool>> predicate)
         {
             return GetAll().Where(predicate);
         }
@@ -100,9 +100,9 @@ namespace Brandsome.DAL.Repos
             return includes.Aggregate(query, (current, includeProperty) => current.Include(includeProperty)).SingleOrDefault(predicate);
         }
 
-        public T GetByIdWithPredicate(Expression<Func<T, bool>> predicate)
+        public async Task<T> GetFirst(Expression<Func<T, bool>> predicate)
         {
-            var query = GetAll().Where(predicate).FirstOrDefault();
+            var query = await GetAll().Where(predicate).FirstOrDefaultAsync();
             return query;
             //return includes.Aggregate(query, (current, includeProperty) => current.Include(includeProperty)).SingleOrDefault(predicate);
         }

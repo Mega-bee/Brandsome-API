@@ -12,6 +12,7 @@ namespace Brandsome.DAL.Models
         [Key]
         public int Id { get; set; }
         public int? PostId { get; set; }
+        public bool? IsDeleted { get; set; }
         [StringLength(450)]
         public string UserId { get; set; }
         [Column(TypeName = "datetime")]

@@ -41,7 +41,7 @@ namespace Brandsome.BLL.Utilities
         {
             var claims = new List<Claim>()
                 {
-                new Claim(JwtRegisteredClaimNames.Email , res.Email ),
+                //new Claim(JwtRegisteredClaimNames.Email , res.Email ),
                 new Claim(ClaimTypes.Name , res.UserName),
                 new Claim("UID",res.Id),
                 //new Claim(ClaimTypes.Role , role.Name),

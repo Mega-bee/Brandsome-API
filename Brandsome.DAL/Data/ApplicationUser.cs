@@ -9,7 +9,7 @@ namespace Brandsome.DAL.Data
     public class ApplicationUser : IdentityUser
     {
 
-        //public string DeviceToken { get; set; }
+        public string FcmToken { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string Image { get; set; }
         public int Balance { get; set; }

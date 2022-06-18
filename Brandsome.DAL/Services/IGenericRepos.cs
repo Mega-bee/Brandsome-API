@@ -20,9 +20,9 @@ namespace Brandsome.DAL.Services
         Task<T> Update(T entity);
 
         Task Delete(int id);
-        T GetByIdWithPredicate(Expression<Func<T, bool>> predicate);
+        Task<T> GetFirst(Expression<Func<T, bool>> predicate);
         T GetByIdWithPredicateAndIncludes(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
-        IQueryable<T> GetAllWithPredicate(Expression<Func<T, bool>> predicate);
+        IQueryable<T> GetAll(Expression<Func<T, bool>> predicate);
         IQueryable<T> GetAllWithPredicateAndIncludes(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
         T GetByIdWithPredicateAndIncludesString(Expression<Func<T, bool>> predicate, string[] includes);
         IQueryable<T> GetAllWithPredicateAndIncludesString(Expression<Func<T, bool>> predicate, string[] includes);

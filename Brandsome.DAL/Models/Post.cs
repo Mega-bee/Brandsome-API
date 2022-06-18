@@ -28,6 +28,12 @@ namespace Brandsome.DAL.Models
         public DateTime? CreatedDate { get; set; }
         public string Descrption { get; set; }
 
+        [ForeignKey("BusinessCityId")]
+        [InverseProperty("Posts")]
+        public virtual BusinessCity BusinessCity { get; set; }
+        [ForeignKey("BusinessServiceId")]
+        [InverseProperty("Posts")]
+        public virtual BusinessService BusinessService { get; set; }
         [InverseProperty("Post")]
         public virtual ICollection<CampaignHistory> CampaignHistories { get; set; }
         [InverseProperty("Post")]

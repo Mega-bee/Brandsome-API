@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Brandsome.DAL.Repos
 {
-    public class BusinessRepository : GenericRepos<Business>, IBusinessRepository
+    public class BusinessReviewRepository : GenericRepos<BusinessReview>, IBusinessReviewRepository
     {
-        public BusinessRepository(BrandsomeDbContext context) : base(context)
+        public BusinessReviewRepository(BrandsomeDbContext context) : base(context)
         {
         }
     }

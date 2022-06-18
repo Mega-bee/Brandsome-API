@@ -11,6 +11,7 @@ namespace Brandsome.DAL.Models
     {
         public City()
         {
+            BusinessCities = new HashSet<BusinessCity>();
             CampaignPools = new HashSet<CampaignPool>();
         }
 
@@ -22,6 +23,8 @@ namespace Brandsome.DAL.Models
         [Column(TypeName = "datetime")]
         public DateTime? CreatedDate { get; set; }
 
+        [InverseProperty("City")]
+        public virtual ICollection<BusinessCity> BusinessCities { get; set; }
         [InverseProperty("City")]
         public virtual ICollection<CampaignPool> CampaignPools { get; set; }
     }

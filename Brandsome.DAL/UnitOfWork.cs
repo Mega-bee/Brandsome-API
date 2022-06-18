@@ -25,6 +25,7 @@ namespace Brandsome.DAL
         private IAspNetUserRepository userRepository;
         private IBusinessRepository businessRepository;
         private IBusinessFollowRepository businessFollowRepository;
+        private IBusinessReviewRepository businessReviewRepository;
 
         #endregion
 
@@ -34,6 +35,7 @@ namespace Brandsome.DAL
         public IAspNetUserRepository UserRepository => userRepository ?? new AspNetUserRepository(_context);
         public IBusinessRepository BusinessRepository => businessRepository ?? new BusinessRepository(_context);
         public IBusinessFollowRepository BusinessFollowRepository => businessFollowRepository ?? new BusinessFollowRepository(_context);
+        public IBusinessReviewRepository BusinessReviewRepository => businessReviewRepository ?? new BusinessReviewRepository(_context);
         #endregion
 
 

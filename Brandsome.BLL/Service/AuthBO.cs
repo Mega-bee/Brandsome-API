@@ -28,7 +28,7 @@ namespace Brandsome.BLL.Service
         private readonly BrandsomeDbContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public AuthBO(IUnitOfWork unit, IMapper mapper, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, BrandsomeDbContext context, NotificationHelper notificationHelper,RoleManager<IdentityRole> roleManager) : base(unit, mapper, notificationHelper)
+        public AuthBO(IUnitOfWork unit, IMapper mapper, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, BrandsomeDbContext context, NotificationHelper notificationHelper, RoleManager<IdentityRole> roleManager) : base(unit, mapper, notificationHelper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -66,23 +66,24 @@ namespace Brandsome.BLL.Service
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = false,
                     UserName = userName,
-
+                     FcmToken = deviceToken,
 
                 };
-               IdentityResult res= await _userManager.CreateAsync(appUser);
-                if(res.Succeeded)
+                IdentityResult res = await _userManager.CreateAsync(appUser);
+                if (res.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(appUser, AppSetting.UserRole);
-                     Otp = Helpers.Generate_otp();
+                    Otp = Helpers.Generate_otp();
                     appUser.Otp = Otp;
                     await _userManager.UpdateAsync(appUser);
-                     content = $"Your OTP is {Otp}";
+                    content = $"Your OTP is {Otp}";
                     Helpers.SendSMS(phoneNumber, content);
-                    responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number"};
+                    responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number" };
                     responseModel.StatusCode = 200;
                     responseModel.ErrorMessage = "";
                     return responseModel;
-                } else
+                }
+                else
                 {
                     responseModel.Data = new DataModel { Data = "", Message = "" };
                     responseModel.StatusCode = 400;
@@ -96,22 +97,23 @@ namespace Brandsome.BLL.Service
             return responseModel;
         }
 
-        public async Task<ResponseModel> VerifyOtp(string phoneNumber,string otp)
+        public async Task<ResponseModel> VerifyOtp(string phoneNumber, string otp)
         {
             ResponseModel responseModel = new ResponseModel();
             ApplicationUser appUser = new ApplicationUser();
-            var user = await _uow.UserRepository.GetAll().Where(x => x.PhoneNumber == phoneNumber).Select(x=> new { x.Id, x.Otp}).FirstOrDefaultAsync();
-            if(user == null)
+            var user = await _uow.UserRepository.GetAll().Where(x => x.PhoneNumber == phoneNumber).Select(x => new { x.Id, x.Otp }).FirstOrDefaultAsync();
+            if (user == null)
             {
                 responseModel.Data = new DataModel { Data = "", Message = "" };
                 responseModel.StatusCode = 400;
                 responseModel.ErrorMessage = "User not found";
-            } 
-            if(user.Otp == otp)
+            }
+            if (user.Otp == otp)
             {
                 appUser = await _userManager.FindByIdAsync(user.Id);
+                await _signInManager.SignInAsync(appUser, false);
                 var roles = await _userManager.GetRolesAsync(appUser);
-                var claims = Tools.GenerateClaims(appUser,roles);
+                var claims = Tools.GenerateClaims(appUser, roles);
                 string JwtToken = Tools.GenerateJWT(claims);
                 responseModel.Data = new DataModel { Data = JwtToken, Message = "Phone number verified sucessfully" };
                 responseModel.ErrorMessage = "";
@@ -128,11 +130,11 @@ namespace Brandsome.BLL.Service
 
         }
 
-        public async Task<ResponseModel> CompleteProfile(CompleteProfile_VM profile,string uid)
+        public async Task<ResponseModel> CompleteProfile(CompleteProfile_VM profile, string uid)
         {
             ResponseModel responseModel = new ResponseModel();
             var user = await _userManager.FindByIdAsync(uid);
-            if(user == null)
+            if (user == null)
             {
                 responseModel.Data = new DataModel { Data = "", Message = "" };
                 responseModel.StatusCode = 400;
@@ -142,7 +144,7 @@ namespace Brandsome.BLL.Service
             user.DateOfBirth = profile.Birthday ?? null;
             user.GenderId = profile.GenderId ?? null;
             IFormFile file = profile.ImageFile;
-            if(file != null)
+            if (file != null)
             {
                 //if(user.Image != null)
                 //{
@@ -152,8 +154,8 @@ namespace Brandsome.BLL.Service
 
                 user.Image = NewFileName;
             }
-           IdentityResult updateResult =  await _userManager.UpdateAsync(user);
-            if(!updateResult.Succeeded)
+            IdentityResult updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
             {
                 responseModel.ErrorMessage = "Failed to update user info";
                 responseModel.StatusCode = 400;
@@ -169,13 +171,13 @@ namespace Brandsome.BLL.Service
         public async Task<ResponseModel> GetAccountSettings(string uid)
         {
             ResponseModel responseModel = new ResponseModel();
-            AccountSettings_VM settings = await _uow.UserRepository.GetAll().Where(x=> x.Id == uid).Select(x=> new AccountSettings_VM
+            AccountSettings_VM settings = await _uow.UserRepository.GetAll().Where(x => x.Id == uid).Select(x => new AccountSettings_VM
             {
-                 Businesses = x.Businesses.Select(b => new AccountSettingsBusiness_VM
-                 {
-                      Id = b.Id,
-                       Name = b.BusinessName
-                 }).ToList(),
+                Businesses = x.Businesses.Select(b => new AccountSettingsBusiness_VM
+                {
+                    Id = b.Id,
+                    Name = b.BusinessName,
+                }).ToList(),
             }).FirstOrDefaultAsync();
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
@@ -183,17 +185,26 @@ namespace Brandsome.BLL.Service
             return responseModel;
         }
 
-        //public async Task<ResponseModel> GetFollowedBusinesses(string uid)
-        //{
-        //    ResponseModel responseModel = new ResponseModel();
-        //    List<FollowedBusiness_VM> businesses = await _uow.BusinessFollowRepository.GetAll().Where(x => x.UserId == uid).Select(bf => new FollowedBusiness_VM
-        //    {
-        //        Id = bf.Id,
-        //        Image = bf.Business.Image,
-        //        Name = bf.Business.BusinessName,
-        //        Type = bf.Business.
-        //     })
-        //}
+        public async Task<ResponseModel> GetFollowedBusinesses(string uid)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            List<FollowedBusiness_VM> businesses = await _uow.BusinessFollowRepository.GetAll().Where(x => x.UserId == uid).Select(bf => new FollowedBusiness_VM
+            {
+                Id = bf.Id,
+                Image = bf.Business.Image,
+                Name = bf.Business.BusinessName,
+                Type = bf.Business.BusinessServices.Where(bs=> bs.IsDeleted == false).First().Service.SubCategory.Category.Title + "/" + bf.Business.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Title,
+                 Services = bf.Business.BusinessServices.Where(bs=> bs.IsDeleted == false).Select(bs => new BusinessService_VM
+                 {
+                      Id=bs.Service.Id,
+                       Name = bs.Service.Title
+                 }).ToList(),
+             }).ToListAsync();
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = businesses, Message = "" };
+            return responseModel;
+        }
         //        public async Task<ResponseModel> EmailSignIn(EmailSignIn_VM model)
         //        {
         //            ResponseModel responseModel = new ResponseModel();

@@ -38,6 +38,7 @@ namespace Brandsome.DAL.Models
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<City> Cities { get; set; }
         public virtual DbSet<Device> Devices { get; set; }
+        public virtual DbSet<Gender> Genders { get; set; }
         public virtual DbSet<Interest> Interests { get; set; }
         public virtual DbSet<Post> Posts { get; set; }
         public virtual DbSet<PostLike> PostLikes { get; set; }
@@ -47,14 +48,7 @@ namespace Brandsome.DAL.Models
         public virtual DbSet<Service> Services { get; set; }
         public virtual DbSet<SubCategory> SubCategories { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=.;Database=BrandSome;Trusted_Connection=True;");
-            }
-        }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -72,6 +66,11 @@ namespace Brandsome.DAL.Models
                     .HasFilter("([NormalizedUserName] IS NOT NULL)");
 
                 entity.Property(e => e.Image).IsFixedLength();
+
+                entity.HasOne(d => d.Gender)
+                    .WithMany(p => p.AspNetUsers)
+                    .HasForeignKey(d => d.GenderId)
+                    .HasConstraintName("FK_AspNetUsers_Gender");
 
                 entity.HasMany(d => d.Roles)
                     .WithMany(p => p.Users)
@@ -134,12 +133,12 @@ namespace Brandsome.DAL.Models
             modelBuilder.Entity<BusinessCity>(entity =>
             {
                 entity.HasOne(d => d.Business)
-                    .WithMany()
+                    .WithMany(p => p.BusinessCities)
                     .HasForeignKey(d => d.BusinessId)
                     .HasConstraintName("FK_BusinessCity_Business");
 
                 entity.HasOne(d => d.City)
-                    .WithMany()
+                    .WithMany(p => p.BusinessCities)
                     .HasForeignKey(d => d.CityId)
                     .HasConstraintName("FK_BusinessCity_City");
             });
@@ -241,6 +240,19 @@ namespace Brandsome.DAL.Models
                     .WithMany(p => p.Interests)
                     .HasForeignKey(d => d.ServiceId)
                     .HasConstraintName("FK_Interest_Services");
+            });
+
+            modelBuilder.Entity<Post>(entity =>
+            {
+                entity.HasOne(d => d.BusinessCity)
+                    .WithMany(p => p.Posts)
+                    .HasForeignKey(d => d.BusinessCityId)
+                    .HasConstraintName("FK_Post_BusinessCity");
+
+                entity.HasOne(d => d.BusinessService)
+                    .WithMany(p => p.Posts)
+                    .HasForeignKey(d => d.BusinessServiceId)
+                    .HasConstraintName("FK_Post_BusinessServices");
             });
 
             modelBuilder.Entity<PostLike>(entity =>

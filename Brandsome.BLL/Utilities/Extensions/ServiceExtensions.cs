@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using Brandsome.DAL.Models;
 using Brandsome.DAL.Data;
 using Brandsome.BLL.TokenProviders.Utilities;
+using Microsoft.AspNetCore.Identity;
 
 namespace Brandsome.BLL.Utilities.Extensions
 {
@@ -30,7 +31,7 @@ namespace Brandsome.BLL.Utilities.Extensions
                options.UseSqlServer(
                    Configuration.GetConnectionString("DefaultConnection")));
 
-            var builder = services.AddDefaultIdentity<ApplicationUser>(options =>
+         services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
                 options.Password.RequireDigit = false;
@@ -41,9 +42,9 @@ namespace Brandsome.BLL.Utilities.Extensions
                 options.User.RequireUniqueEmail = false;
             })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            var UserType = builder.UserType;
-            var provider = typeof(NoPasswordTokenProvider<>).MakeGenericType(UserType);
-            builder.AddTokenProvider(AppSetting.NoPasswordTokenProviderName, provider);
+            //var UserType = builder.UserType;
+            //var provider = typeof(NoPasswordTokenProvider<>).MakeGenericType(UserType);
+            //builder.AddTokenProvider(AppSetting.NoPasswordTokenProviderName, provider);
 
         }
 
