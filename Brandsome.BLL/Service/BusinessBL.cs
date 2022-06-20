@@ -288,7 +288,7 @@ namespace Brandsome.BLL.Service
         public async Task<ResponseModel> DeleteBusinessService(string uid, int businessServiceId)
         {
             ResponseModel responseModel = new ResponseModel();
-            BusinessService businessService = await _uow.BusinessServiceRepository.GetByIdWithPredicateAndIncludes(x => x.Id == businessCityId && x.Business.UserId == uid && x.IsDeleted == false, x => x.Business);
+            BusinessService businessService = await _uow.BusinessServiceRepository.GetByIdWithPredicateAndIncludes(x => x.Id == businessServiceId && x.Business.UserId == uid && x.IsDeleted == false, x => x.Business);
             if (businessService == null)
             {
                 responseModel.ErrorMessage = "";
