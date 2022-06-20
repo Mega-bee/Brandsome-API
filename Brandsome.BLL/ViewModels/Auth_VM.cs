@@ -49,20 +49,20 @@ namespace Brandsome.BLL.ViewModels
 
     public partial class Profile_VM
     {
-        public int Id { get; set; }
+        //public string Id { get; set; }
         // public string Uid { get; set; }
-        public string Name { get; set; }
+        public string UserName { get; set; }
         public string PhoneNumber { get; set; }
         public string ImageUrl { get; set; }
-        public string Role { get; set; }
+        //public string Role { get; set; }
         public string Email { get; set; }
         // public int OrderListId { get; set; }
         // public bool IsActive { get; set; }
         public string Gender { get; set; }
         public int GenderId { get; set; }
-        public DateTime BirthDate { get; set; }
-        public string Token { get; set; }
-        public bool IsProfileComplete { get; set; }
+        public DateTime? BirthDate { get; set; }
+        //public string Token { get; set; }
+        //public bool IsProfileComplete { get; set; }
 
     }
 

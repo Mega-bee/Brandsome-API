@@ -57,7 +57,7 @@ namespace Brandsome.BLL.Service
                 Cities = b.BusinessCities.Where(bc => bc.IsDeleted == false).Select(bc => new BusinessCity_VM
                 {
                     Id = bc.Id,
-                    Name = bc.City.Title
+                    Name = bc.City.Title ?? ""
                 }).ToList(),
                 Description = b.Description ?? "",
                 FollowCount = b.BusinessFollowCount ?? 0,
@@ -67,13 +67,19 @@ namespace Brandsome.BLL.Service
                 Name = b.BusinessName ?? "",
                 Posts = b.BusinessServices.SelectMany(bs => bs.Posts.Where(p => p.IsDeleted == false)).Select(p => new Post_VM
                 {
-                    Name = b.BusinessName,
-                    Description = p.Descrption,
+                    Name = b.BusinessName ?? "",
+                    Description = p.Descrption ?? "",
                     LikeCount = p.PostLikeCount ?? 0,
                     Id = p.Id,
                     IsLiked = p.PostLikes.Any(pl => pl.IsDeleted == false && pl.UserId == uid),
                     Type = p.BusinessService.Service.SubCategory.Category.Title + "/" + p.BusinessService.Service.SubCategory.Title + "/" + p.BusinessService.Service.Title,
-
+                     City = p.BusinessCity.City.Title,
+                      PostMedia = p.PostMedia.Select(pm => new PostMedia_VM
+                      {
+                           Id = pm.Id,
+                            MediaTypeId = pm.PostTypeId ?? 0,
+                             MediaTypeName = pm.PostType.Title ?? ""
+                      }).ToList(),
                     //Cities = p.busi
                 }).ToList(),
                  ReviewCount = b.BusinessReviewCount ?? 0,
@@ -81,8 +87,9 @@ namespace Brandsome.BLL.Service
                   {
                        Description = br.Description ?? "",
                         Id = br.Id,
-                         Name = br.User.UserName,
+                         Name = br.User.UserName ?? "",
                   }).ToList(),
+
             }).FirstOrDefaultAsync();
             responseModel.Data = new DataModel { Data = business, Message = "" };
             responseModel.ErrorMessage = "";

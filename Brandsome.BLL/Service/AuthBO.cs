@@ -141,8 +141,8 @@ namespace Brandsome.BLL.Service
                 responseModel.ErrorMessage = "User not found";
                 return responseModel;
             }
-            user.DateOfBirth = profile.Birthday ?? null;
-            user.GenderId = profile.GenderId ?? null;
+            user.DateOfBirth = profile.Birthday ?? user.DateOfBirth;
+            user.GenderId = profile.GenderId ?? user.GenderId;
             IFormFile file = profile.ImageFile;
             if (file != null)
             {
@@ -203,6 +203,25 @@ namespace Brandsome.BLL.Service
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
             responseModel.Data = new DataModel { Data = businesses, Message = "" };
+            return responseModel;
+        }
+
+        public async Task<ResponseModel> GetProfile(string uid)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            Profile_VM profile = await _uow.UserRepository.GetAll(x=> x.Id == uid).Select(u => new Profile_VM
+            {
+                  BirthDate = u.DateOfBirth,
+                     Email = u.Email,
+                      Gender = u.Gender.Title,
+                       GenderId = u.GenderId ?? 0,
+                        ImageUrl = u.Image,
+                         PhoneNumber = u.PhoneNumber,
+                          UserName = u.UserName,
+            }).FirstOrDefaultAsync();
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = profile, Message = "" };
             return responseModel;
         }
         //        public async Task<ResponseModel> EmailSignIn(EmailSignIn_VM model)
