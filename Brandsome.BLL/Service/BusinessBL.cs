@@ -24,14 +24,7 @@ namespace Brandsome.BLL.Service
         {
             ResponseModel responseModel = new ResponseModel();
             List<Business_VM> businesses =  _uow.BusinessRepository.GetAll().Where(x => x.IsDeleted == false).Select(Converters.ConvertToBusinessVM).OrderByDescending(x=> x.Id).ToList();
-            //if (serviceId == 0)
-            //{
-            //    businesses = businesses.OrderByDescending(x=> x.Id).ToList();
-            //    responseModel.Data = new DataModel { Data = businesses, Message = "" };
-            //    responseModel.ErrorMessage = "";
-            //    responseModel.StatusCode = 200;
-            //    return responseModel;
-            //}
+
 
             if(serviceId > 0)
             {
