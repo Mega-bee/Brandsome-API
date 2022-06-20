@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -48,6 +50,22 @@ namespace Brandsome.BLL.ViewModels
 
     public partial class BusinessService_VM : BusinessBase_VM
     {
+    }
+
+    public partial class CreateBusiness_VM
+    {
+        public int Id { get; set; } = 0;
+        [Required]
+        public string BusinessName { get; set; }
+        [Required]
+        public string BusinessDescription { get; set; }
+        [Required]
+        public string BusinessPhoneNumber { get; set; }
+        [Required]
+        public List<int> Cities { get; set; }
+        [Required]
+        public List<int> Services { get; set; }
+        public IFormFile ImageFile { get; set; }
     }
 
 }

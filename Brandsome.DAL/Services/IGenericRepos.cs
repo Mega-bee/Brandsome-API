@@ -21,7 +21,7 @@ namespace Brandsome.DAL.Services
 
         Task Delete(int id);
         Task<T> GetFirst(Expression<Func<T, bool>> predicate);
-        T GetByIdWithPredicateAndIncludes(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
+        Task<T> GetByIdWithPredicateAndIncludes(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
         IQueryable<T> GetAll(Expression<Func<T, bool>> predicate);
         IQueryable<T> GetAllWithPredicateAndIncludes(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
         T GetByIdWithPredicateAndIncludesString(Expression<Func<T, bool>> predicate, string[] includes);

@@ -3,6 +3,7 @@ using Brandsome.BLL.Utilities;
 using Brandsome.BLL.ViewModels;
 using Brandsome.DAL;
 using Brandsome.DAL.Models;
+using Brandsome.DAL.Repos;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace Brandsome.BLL.Service
 {
     public class BusinessBL : BaseBO
     {
+   
         public BusinessBL(IUnitOfWork unit, IMapper mapper, NotificationHelper notificationHelper) : base(unit, mapper, notificationHelper)
         {
         }
@@ -156,6 +158,214 @@ namespace Brandsome.BLL.Service
             return responseModel;
         }
 
+        public async Task<ResponseModel> CreateBusiness(string uid,CreateBusiness_VM business)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            BusinessCity businessCity;
+            BusinessService businessService;
+            Business newBusiness = new Business()
+            {
+                BusinessFollowCount = 0,
+                BusinessLikeCount = 0,
+                BusinessPhoneClickCount = 0,
+                BusinessReviewCount = 0,
+                BusinessViewCount = 0,
+                BusinessPostCount = 0,
+                CreatedDate = DateTime.UtcNow,
+                Description = business.BusinessDescription,
+                BusinessName = business.BusinessName,
+                UserId = uid,
+            };
+            var file = business.ImageFile;
+            if (file != null)
+            {
+                string NewFileName = await Helpers.SaveFile("wwwroot/uploads", file);
+                newBusiness.Image = NewFileName;
+            }
+            newBusiness = await _uow.BusinessRepository.Create(newBusiness);
+            foreach (var item in business.Cities)
+            {
+                businessCity = new BusinessCity()
+                {
+                    CityId = item,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.UtcNow,
+                    BusinessId = newBusiness.Id,
+                };
+                await _uow.BusinessCityRepository.Create(businessCity);
+            }
+
+            foreach (var item in business.Services)
+            {
+                businessService = new BusinessService()
+                {
+                    BusinessId = newBusiness.Id,
+                    IsDeleted = false,
+                    ServiceId = item,
+                    CreatedDate = DateTime.UtcNow,
+                };
+
+                await _uow.BusinessServiceRepository.Create(businessService);
+            }
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = "", Message = "Business created succesfully" };
+            return responseModel;
+        }
+
+        public async Task<ResponseModel> UpdateBusiness(CreateBusiness_VM business)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            BusinessCity businessCity;
+            BusinessService businessService;
+            Business currBusiness = await _uow.BusinessRepository.GetByIdWithPredicateAndIncludes(x => x.Id == business.Id, x => x.BusinessServices, x => x.BusinessCities);
+            if(currBusiness == null)
+            {
+                responseModel.ErrorMessage = "Business not found";
+                responseModel.StatusCode = 404;
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                return responseModel;
+            }
+            currBusiness.Description = business.BusinessDescription;
+            currBusiness.BusinessName = business.BusinessName;
+            currBusiness.BusinessPhone = business.BusinessPhoneNumber;
+            var file = business.ImageFile;
+            if (file != null)
+            {
+                string NewFileName = await Helpers.SaveFile("wwwroot/uploads", file);
+                currBusiness.Image = NewFileName;
+            }
+            await _uow.BusinessRepository.Update(currBusiness);
+            foreach (var item in business.Cities)
+            {
+                businessCity = new BusinessCity()
+                {
+                    CityId = item,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.UtcNow,
+                    BusinessId = currBusiness.Id,
+                };
+                await _uow.BusinessCityRepository.Create(businessCity);
+            }
+
+            foreach (var item in business.Services)
+            {
+                businessService = new BusinessService()
+                {
+                    BusinessId = currBusiness.Id,
+                    IsDeleted = false,
+                    ServiceId = item,
+                    CreatedDate = DateTime.UtcNow,
+                };
+
+                await _uow.BusinessServiceRepository.Create(businessService);
+            }
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = "", Message = "Business updated successfully" };
+            return responseModel;
+        }
+
+        public async Task<ResponseModel> DeleteBusinessCity(string uid,int businessCityId)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            BusinessCity businessCity = await _uow.BusinessCityRepository.GetByIdWithPredicateAndIncludes(x => x.Id == businessCityId && x.Business.UserId == uid && x.IsDeleted == false, x => x.Business); 
+            if(businessCity == null)
+            {
+                responseModel.ErrorMessage = "";
+                responseModel.StatusCode = 404;
+                responseModel.Data = new DataModel { Data = "", Message = "Business city not found" };
+                return responseModel;
+            }
+            businessCity.IsDeleted = true;
+            await _uow.BusinessCityRepository.Update(businessCity);
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = "", Message = "Business city succesfully deleted" };
+            return responseModel;
+        }
+
+        public async Task<ResponseModel> DeleteBusinessService(string uid, int businessServiceId)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            BusinessService businessService = await _uow.BusinessServiceRepository.GetByIdWithPredicateAndIncludes(x => x.Id == businessCityId && x.Business.UserId == uid && x.IsDeleted == false, x => x.Business);
+            if (businessService == null)
+            {
+                responseModel.ErrorMessage = "";
+                responseModel.StatusCode = 404;
+                responseModel.Data = new DataModel { Data = "", Message = "Business service not found" };
+                return responseModel;
+            }
+            businessService.IsDeleted = true;
+            await _uow.BusinessServiceRepository.Update(businessService);
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = "", Message = "Business service succesfully deleted" };
+            return responseModel;
+        }
+
+        public async Task<ResponseModel> CreatePost(CreatePost_VM post)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            Post newPost = new Post()
+            {
+                CreatedDate = DateTime.UtcNow,
+                BusinessCityId = post.CityId,
+                BusinessServiceId = post.ServiceId,
+                Descrption = post.Description,
+                IsDeleted = false,
+                PostViewCount = 0,
+                PostLikeCount = 0,
+            };
+            newPost =   await _uow.PostRepository.Create(newPost);
+            if(post.Media.Count > 0)
+            {
+                foreach (var item in post.Media)
+                {
+                    PostMedium media = new PostMedium();
+                    media.PostId = newPost.Id;
+                    bool isImage = Tools.CHeckIfImage(item);
+                    bool isVideo = Tools.CheckIfVideo(item);
+                    if (isImage)
+                    {
+                        media.PostTypeId = 1;
+                    } else if(isVideo)
+                    {
+                        media.PostTypeId = 2;
+                    }
+
+                    string NewFileName = await Helpers.SaveFile("wwwroot/Posts/Media", item);
+                    media.FilePath = NewFileName;
+                    await _uow.PostMediaRepository.Create(media);
+                }
+            }
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 201;
+            responseModel.Data = new DataModel { Data = "", Message = "Post updated succesfully" };
+            return responseModel;
+
+        }
+
+        public async Task<ResponseModel> UpdatePost(string uid,CreatePost_VM post)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            Post currPost = await _uow.PostRepository.GetFirst(x=> x.Id == post.Id && x.IsDeleted == false && x.BusinessCity.Business.UserId == uid);
+            if (currPost == null)
+            {
+                responseModel.ErrorMessage = "Post not found";
+                responseModel.StatusCode = 404;
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                return responseModel;
+            }
+            currPost.Descrption = post.Description;
+            currPost.BusinessCityId = post.CityId;
+            currPost.BusinessServiceId = post.ServiceId;
+            await _uow.PostRepository.Update(currPost);
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 201;
+            responseModel.Data = new DataModel { Data = "", Message = "Post updated successfully" };
+            return responseModel;
+        }
         //public async Task<ResponseModel> CreateBusiness()
     }
 }

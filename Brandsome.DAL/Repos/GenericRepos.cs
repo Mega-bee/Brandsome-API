@@ -93,11 +93,11 @@ namespace Brandsome.DAL.Repos
             return query.Where(predicate);
         }
 
-        public T GetByIdWithPredicateAndIncludes(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+        public async Task <T> GetByIdWithPredicateAndIncludes(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
         {
             var query = GetAll();
 
-            return includes.Aggregate(query, (current, includeProperty) => current.Include(includeProperty)).SingleOrDefault(predicate);
+            return await includes.Aggregate(query, (current, includeProperty) => current.Include(includeProperty)).SingleOrDefaultAsync(predicate);
         }
 
         public async Task<T> GetFirst(Expression<Func<T, bool>> predicate)

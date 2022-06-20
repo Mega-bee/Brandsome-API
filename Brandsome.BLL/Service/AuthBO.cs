@@ -96,6 +96,21 @@ namespace Brandsome.BLL.Service
             responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number" };
             return responseModel;
         }
+        public async Task<ResponseModel> ResendOtp(string phoneNumber)
+        {
+            ApplicationUser appUser = null;
+            ResponseModel responseModel = new ResponseModel();
+            string Otp = "";
+            string content = "";
+            await CheckRoles();
+            string userOtp = await _uow.UserRepository.GetAll().Where(x => x.PhoneNumber == phoneNumber).Select(x=> x.Otp).FirstOrDefaultAsync();
+           
+            Otp = userOtp;
+             content = $"Your OTP is {Otp}";
+            Helpers.SendSMS(phoneNumber, content);
+            responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number" };
+            return responseModel;
+        }
 
         public async Task<ResponseModel> VerifyOtp(string phoneNumber, string otp)
         {
@@ -188,17 +203,17 @@ namespace Brandsome.BLL.Service
         public async Task<ResponseModel> GetFollowedBusinesses(string uid)
         {
             ResponseModel responseModel = new ResponseModel();
-            List<FollowedBusiness_VM> businesses = await _uow.BusinessFollowRepository.GetAll().Where(x => x.UserId == uid).Select(bf => new FollowedBusiness_VM
+            List<FollowedBusiness_VM> businesses = await _uow.BusinessFollowRepository.GetAll(x => x.UserId == uid).Select(bf => new FollowedBusiness_VM
             {
                 Id = bf.Id,
                 Image = bf.Business.Image,
                 Name = bf.Business.BusinessName,
                 Type = bf.Business.BusinessServices.Where(bs=> bs.IsDeleted == false).First().Service.SubCategory.Category.Title + "/" + bf.Business.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Title,
-                 Services = bf.Business.BusinessServices.Where(bs=> bs.IsDeleted == false).Select(bs => new BusinessService_VM
-                 {
-                      Id=bs.Service.Id,
-                       Name = bs.Service.Title
-                 }).ToList(),
+                Services = bf.Business.BusinessServices.Where(bs=> bs.IsDeleted == false).Select(bs => new BusinessService_VM
+                {
+                    Id=bs.Service.Id,
+                    Name = bs.Service.Title
+                }).ToList(),
              }).ToListAsync();
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;

@@ -15,6 +15,10 @@ namespace Brandsome.DAL
         IBusinessRepository BusinessRepository { get; }
         IBusinessFollowRepository BusinessFollowRepository { get; }
         IBusinessReviewRepository BusinessReviewRepository { get; }
+        IBusinessCityRepository BusinessCityRepository { get; }
+        IBusinessServiceRepository BusinessServiceRepository { get; }
+        IPostRepository PostRepository { get; }
+        IPostMediaRepository PostMediaRepository { get; }
         void Save();
     }
 }

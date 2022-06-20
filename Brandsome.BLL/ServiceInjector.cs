@@ -37,6 +37,10 @@ namespace Brandsome.BLL
             _services.AddScoped<IGenericRepos<Business>, GenericRepos<Business>>();
             _services.AddScoped<IGenericRepos<BusinessFollow>, GenericRepos<BusinessFollow>>();
             _services.AddScoped<IGenericRepos<BusinessReview>, GenericRepos<BusinessReview>>();
+            _services.AddScoped<IGenericRepos<BusinessCity>, GenericRepos<BusinessCity>>();
+            _services.AddScoped<IGenericRepos<PostMedium>, GenericRepos<PostMedium>>();
+            _services.AddScoped<IGenericRepos<Post>, GenericRepos<Post>>();
+            _services.AddScoped<IGenericRepos<BusinessService>, GenericRepos<BusinessService>>();
             _services.AddScoped<IGenericRepos<Device>, GenericRepos<Device>>();
             _services.AddScoped<NotificationHelper>();
             _services.AddScoped<ValidationFilterAttribute>();

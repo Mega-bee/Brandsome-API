@@ -74,27 +74,41 @@ namespace Brandsome.BLL.Utilities
             return number >= min && number <= max;
         }
 
-        //public static async Task<string> SaveVideo(this IFormFile formFile, string folderName)
-        //{
-        //    string path = Path.Combine("wwwroot", "Videos", folderName, Guid.NewGuid().ToString() + ".mp4");
-        //    using (FileStream fs = new FileStream(path, FileMode.Create))
-        //    {
-        //        await formFile.CopyToAsync(fs);
-        //    }
-        //    return path;
-        //}
+        public static async Task<string> SaveVideo(this IFormFile formFile, string folderName)
+        {
+            string path = Path.Combine("wwwroot", "Videos", folderName, Guid.NewGuid().ToString() + ".mp4");
+            using (FileStream fs = new FileStream(path, FileMode.Create))
+            {
+                await formFile.CopyToAsync(fs);
+            }
+            return path;
+        }
 
 
-        //public static async Task<List<string>> SaveVideos(List<IFormFile> formFiles, string folderName)
-        //{
-        //    List<string> result = new List<string>();
-        //    foreach (IFormFile form in formFiles)
-        //    {
-        //        string path = await form.SaveVideo(folderName);
-        //        result.Add(path);
-        //    }
-        //    return result;
-        //}
+        public static async Task<List<string>> SaveVideos(List<IFormFile> formFiles, string folderName)
+        {
+            List<string> result = new List<string>();
+            foreach (IFormFile form in formFiles)
+            {
+                string path = await form.SaveVideo(folderName);
+                result.Add(path);
+            }
+            return result;
+        }
+
+        public static bool CheckIfVideo(IFormFile file)
+        {
+            string[] extensionArray = VideoTypes.Split(',');
+            bool validExtension = extensionArray.Any(x => file.FileName.ToLower().EndsWith(x.ToLower()));
+            return validExtension;
+        }
+
+        public static bool CHeckIfImage(IFormFile file)
+        {
+            string[] extensionArray = ImageTypes.Split(',');
+            bool validExtension = extensionArray.Any(x => file.FileName.ToLower().EndsWith(x.ToLower()));
+            return validExtension;
+        }
 
         public static async Task<bool> SendEmailAsync(string toEmail, string subject, string content)
         {
@@ -118,5 +132,6 @@ namespace Brandsome.BLL.Utilities
 
         public static string ImageTypes = ".jpg,.bmp,.PNG,.EPS,.gif,.TIFF,.tif,.jfif";
 
+        public static string VideoTypes = ".mp4,.wmv,.flv";
     }
 }
