@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Brandsome.BLL.Utilities.Logging;
 using Brandsome.BLL.ViewModels;
 using Brandsome.BLL.IServices;
-using Brandsome.BLL.Service;
 using Brandsome.BLL;
 using Brandsome.BLL.Utilities;
 using Brandsome.BLL.Utilities.ActionFilters;
@@ -16,6 +15,7 @@ using Brandsome.DAL;
 using Brandsome.DAL.Services;
 using Brandsome.DAL.Models;
 using Brandsome.DAL.Repos;
+using Brandsome.BLL.Services;
 
 namespace Brandsome.BLL
 {
@@ -30,8 +30,9 @@ namespace Brandsome.BLL
         public void Render()
         {
             _services.AddScoped<BaseBO>();
-
             _services.AddScoped<IAuthBO, AuthBO>();
+            _services.AddScoped<IBusinessBL, BusinessBL>();
+            _services.AddScoped<IInterestsBL, InterestsBL>();
             _services.AddScoped<IUnitOfWork, UnitOfWork>();
             _services.AddScoped<IGenericRepos<AspNetUser>, GenericRepos<AspNetUser>>();
             _services.AddScoped<IGenericRepos<Business>, GenericRepos<Business>>();
@@ -39,6 +40,9 @@ namespace Brandsome.BLL
             _services.AddScoped<IGenericRepos<BusinessReview>, GenericRepos<BusinessReview>>();
             _services.AddScoped<IGenericRepos<BusinessCity>, GenericRepos<BusinessCity>>();
             _services.AddScoped<IGenericRepos<PostMedium>, GenericRepos<PostMedium>>();
+            _services.AddScoped<IGenericRepos<Category>, GenericRepos<Category>>();
+            _services.AddScoped<IGenericRepos<SubCategory>, GenericRepos<SubCategory>>();
+            _services.AddScoped<IGenericRepos<Service>, GenericRepos<Service>>();
             _services.AddScoped<IGenericRepos<Post>, GenericRepos<Post>>();
             _services.AddScoped<IGenericRepos<BusinessService>, GenericRepos<BusinessService>>();
             _services.AddScoped<IGenericRepos<Device>, GenericRepos<Device>>();

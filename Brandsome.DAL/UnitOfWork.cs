@@ -30,6 +30,10 @@ namespace Brandsome.DAL
         private IBusinessServiceRepository businessServiceRepository;
         private IPostRepository postRepository;
         private IPostMediaRepository postMediaRepository;
+        private ICategoryRepository categoryRepository;
+        private ISubcategoryRepository subcategoryRepository;
+        private IServiceRepository serviceRepository;
+
         #endregion
 
 
@@ -43,6 +47,9 @@ namespace Brandsome.DAL
         public IBusinessServiceRepository BusinessServiceRepository => businessServiceRepository ?? new BusinessServiceRepository(_context);
         public IPostRepository PostRepository => postRepository ?? new PostRepository(_context);
         public IPostMediaRepository PostMediaRepository => postMediaRepository ?? new PostMediaRepository(_context);
+        public ICategoryRepository CategoryRepository => categoryRepository ?? new CategoryRepository(_context);
+        public ISubcategoryRepository SubcategoryRepository => subcategoryRepository ?? new SubcategoryRepository(_context);
+        public IServiceRepository ServiceRepository => serviceRepository ?? new ServiceRepository(_context);
         #endregion
 
 

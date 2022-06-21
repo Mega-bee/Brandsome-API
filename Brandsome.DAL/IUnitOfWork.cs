@@ -19,6 +19,9 @@ namespace Brandsome.DAL
         IBusinessServiceRepository BusinessServiceRepository { get; }
         IPostRepository PostRepository { get; }
         IPostMediaRepository PostMediaRepository { get; }
+        ICategoryRepository CategoryRepository { get; }
+        ISubcategoryRepository SubcategoryRepository { get; }
+        IServiceRepository ServiceRepository { get; }
         void Save();
     }
 }

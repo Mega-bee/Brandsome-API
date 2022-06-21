@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Brandsome.BLL.TokenProviders.Utilities
+namespace Brandsome.BLL.Utilities.TokenProviders
 {
     public class NoPasswordTokenProvider<TUser> : DataProtectorTokenProvider<Timer> where TUser : IdentityUser
     {

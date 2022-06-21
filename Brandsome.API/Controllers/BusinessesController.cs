@@ -2,6 +2,7 @@
 using Brandsome.BLL.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -17,30 +18,36 @@ namespace Brandsome.API.Controllers
             _Bbl = bBL;
         }
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
-        [HttpGet]
-        public IActionResult GetBusinsses([FromForm] int serviceId, [FromForm] string sortBy)
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [HttpGet("{serviceId?}")]
+        public async Task <IActionResult> GetBusinesses([FromQuery] string sortBy, [FromRoute] int serviceId = 0)
         {
-            return Ok(_Bbl.GetBusinsses(serviceId,sortBy));
-        }
-           
-        
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
-        [HttpGet]
-        public IActionResult GetBusiness([FromForm] int businessId)
-        {
-            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            return Ok(_Bbl.GetBusiness(uid, businessId));
+            return Ok(await _Bbl.GetBusinsses(serviceId,sortBy, Request));
         }
 
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
-        [HttpPost]
-        public async Task<IActionResult> FollowBusiness([FromForm] int businessId)
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [HttpGet("{businessId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetBusiness([FromRoute] int businessId)
         {
-            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            return Ok(await _Bbl.FollowBusiness(uid, businessId));
+            string uid = "";
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity.IsAuthenticated)
+            {
+                uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            }
+            return Ok(await _Bbl.GetBusiness(uid, businessId, Request));
         }
+
+
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        //[HttpPost("{businessId}")]
+        //public async Task<IActionResult> FollowBusiness([FromRoute] int businessId)
+        //{
+        //    string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+        //    return Ok(await _Bbl.FollowBusiness(uid, businessId));
+        //}
 
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
@@ -69,23 +76,39 @@ namespace Brandsome.API.Controllers
         } 
         
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
-        [HttpPut]
-        public async Task<IActionResult> DeleteBusinessCity([FromForm] int businessCityId)
+        [HttpPut("{businessCityId}")]
+        public async Task<IActionResult> DeleteBusinessCity([FromRoute] int businessCityId)
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             return Ok(await _Bbl.DeleteBusinessCity(uid,businessCityId));
         } 
         
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
-        [HttpPut]
-        public async Task<IActionResult> DeleteBusinessService([FromForm] int businessServiceId)
+        [HttpPut("{businessServiceId}")]
+        public async Task<IActionResult> DeleteBusinessService([FromRoute] int businessServiceId)
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             return Ok(await _Bbl.DeleteBusinessService(uid, businessServiceId));
         }
-        
-        
-    
+
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [HttpGet("{businessId}")]
+        public async Task<IActionResult> GetBusinessCities([FromRoute] int businessId)
+        {
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _Bbl.GetBusinessCities(businessId, uid));
+        }
+
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [HttpGet("{businessId}")]
+        public async Task<IActionResult> GetBusinessServices([FromRoute] int businessId)
+        {
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _Bbl.GetBusinessServices(businessId, uid));
+        }
+
+
+
 
 
     }

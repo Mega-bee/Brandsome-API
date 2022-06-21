@@ -1,5 +1,6 @@
 ﻿using Brandsome.BLL.ViewModels;
 using Brandsome.DAL.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Brandsome.BLL.Utilities
 {
     public static class Converters
     {
-        public static Business_VM ConvertToBusinessVM(Business business)
+        public static Business_VM ConvertToBusinessVM(Business business, HttpRequest request)
         {
             var businessVm = new Business_VM
             {
@@ -21,7 +22,7 @@ namespace Brandsome.BLL.Utilities
                     Name = bc.City.Title
                 }).ToList(),
                 Name = business.BusinessName ??"",
-                Image = business.Image ?? "",
+                Image = $"{request.Scheme}://{request.Host}/Images/{business.Image}",
                 PostCount = business.BusinessPostCount ?? 0,
                 ReviewCount = business.BusinessReviewCount ?? 0,
                 ViewCount = business.BusinessViewCount ?? 0,

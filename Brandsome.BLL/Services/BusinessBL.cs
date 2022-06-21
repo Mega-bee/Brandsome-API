@@ -5,6 +5,7 @@ using Brandsome.BLL.ViewModels;
 using Brandsome.DAL;
 using Brandsome.DAL.Models;
 using Brandsome.DAL.Repos;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Brandsome.BLL.Service
+namespace Brandsome.BLL.Services
 {
     public class BusinessBL : BaseBO, IBusinessBL
     {
@@ -20,10 +21,29 @@ namespace Brandsome.BLL.Service
         {
         }
 
-        public ResponseModel GetBusinsses(int serviceId, string sortBy)
+        public async Task<ResponseModel> GetBusinsses(int serviceId, string sortBy, HttpRequest request)
         {
             ResponseModel responseModel = new ResponseModel();
-            List<Business_VM> businesses = _uow.BusinessRepository.GetAll().Where(x => x.IsDeleted == false).Select(Converters.ConvertToBusinessVM).OrderByDescending(x => x.Id).ToList();
+            List<Business_VM> businesses =await _uow.BusinessRepository.GetAll().Where(x => x.IsDeleted == false).Select(business => new Business_VM
+            {
+                Id = business.Id,
+                Cities = business.BusinessCities.Where(bc => bc.IsDeleted == false).Select(bc => new BusinessCity_VM
+                {
+                    Id = bc.Id,
+                    Name = bc.City.Title
+                }).ToList(),
+                Name = business.BusinessName ?? "",
+                Image = $"{request.Scheme}://{request.Host}/Images/{business.Image}",
+                PostCount = business.BusinessPostCount ?? 0,
+                ReviewCount = business.BusinessReviewCount ?? 0,
+                ViewCount = business.BusinessViewCount ?? 0,
+                FollowCount = business.BusinessFollowCount ?? 0,
+                Services = business.BusinessServices.Where(bs => bs.IsDeleted == false).Select(bs => new BusinessService_VM
+                {
+                    Id = (int)bs.ServiceId,
+                    Name = bs.Service.Title
+                }).ToList()
+            }).OrderByDescending(x => x.Id).ToListAsync();
 
 
             if (serviceId > 0)
@@ -43,10 +63,10 @@ namespace Brandsome.BLL.Service
 
         }
 
-        public async Task<ResponseModel> GetBusiness(string uid, int businessId)
+        public async Task<ResponseModel> GetBusiness(string uid, int businessId, HttpRequest request)
         {
             ResponseModel responseModel = new ResponseModel();
-            BusinessInfo_VM business = await _uow.BusinessRepository.GetAll(x => x.Id == businessId).Select(b => new BusinessInfo_VM
+            BusinessInfo_VM business = await _uow.BusinessRepository.GetAll().Where(x => x.Id == businessId).Select(b => new BusinessInfo_VM
             {
                 Id = b.Id,
                 Cities = b.BusinessCities.Where(bc => bc.IsDeleted == false).Select(bc => new BusinessCity_VM
@@ -57,7 +77,7 @@ namespace Brandsome.BLL.Service
                 Description = b.Description ?? "",
                 FollowCount = b.BusinessFollowCount ?? 0,
                 PhoneNumber = b.BusinessPhone ?? "",
-                Image = b.Image ?? "",
+                Image = $"{request.Scheme}://{request.Host}/Images/{b.Image}",
                 PostCount = b.BusinessPostCount ?? 0,
                 Name = b.BusinessName ?? "",
                 Posts = b.BusinessServices.SelectMany(bs => bs.Posts.Where(p => p.IsDeleted == false)).Select(p => new Post_VM
@@ -72,8 +92,10 @@ namespace Brandsome.BLL.Service
                     PostMedia = p.PostMedia.Select(pm => new PostMedia_VM
                     {
                         Id = pm.Id,
+                        Url = $"{request.Scheme}://{request.Host}/posts/media/{pm.FilePath}",
                         MediaTypeId = pm.PostTypeId ?? 0,
-                        MediaTypeName = pm.PostType.Title ?? ""
+                        MediaTypeName = pm.PostType.Title ?? "",
+
                     }).ToList(),
                     //Cities = p.busi
                 }).ToList(),
@@ -83,8 +105,14 @@ namespace Brandsome.BLL.Service
                     Description = br.Description ?? "",
                     Id = br.Id,
                     Name = br.User.UserName ?? "",
+                    Image = $"{request.Scheme}://{request.Host}/Uploads/{br.User.Image}"
                 }).ToList(),
-
+                 Services = b.BusinessServices.Select(bs => new BusinessService_VM
+                 {
+                      Id=bs.Id,
+                       Name = bs.Service.Title ?? ""
+                 }).ToList(),
+                  IsUserBusiness = uid == b.UserId
             }).FirstOrDefaultAsync();
             responseModel.Data = new DataModel { Data = business, Message = "" };
             responseModel.ErrorMessage = "";
@@ -167,13 +195,19 @@ namespace Brandsome.BLL.Service
                 CreatedDate = DateTime.UtcNow,
                 Description = business.BusinessDescription,
                 BusinessName = business.BusinessName,
+                 BusinessPhone = business.BusinessPhoneNumber,
                 UserId = uid,
+                IsDeleted= false
             };
             var file = business.ImageFile;
             if (file != null)
             {
-                string NewFileName = await Helpers.SaveFile("wwwroot/uploads", file);
+                string NewFileName = await Helpers.SaveFile("wwwroot/images", file);
                 newBusiness.Image = NewFileName;
+            }
+            else
+            {
+                newBusiness.Image = "business-img-placeholder.jpg";
             }
             newBusiness = await _uow.BusinessRepository.Create(newBusiness);
             foreach (var item in business.Cities)
@@ -335,7 +369,7 @@ namespace Brandsome.BLL.Service
             }
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 201;
-            responseModel.Data = new DataModel { Data = "", Message = "Post updated succesfully" };
+            responseModel.Data = new DataModel { Data = "", Message = "Post created succesfully" };
             return responseModel;
 
         }
@@ -358,6 +392,34 @@ namespace Brandsome.BLL.Service
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 201;
             responseModel.Data = new DataModel { Data = "", Message = "Post updated successfully" };
+            return responseModel;
+        }
+
+        public async Task<ResponseModel> GetBusinessCities(int businessId, string uid)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            List<BusinessCity_VM> cities = await _uow.BusinessCityRepository.GetAll(x => x.BusinessId == businessId && x.Business.UserId == uid).Select(x => new BusinessCity_VM
+            {
+                Id = x.Id,
+                Name = x.City.Title
+            }).ToListAsync();
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 201;
+            responseModel.Data = new DataModel { Data = cities, Message = "" };
+            return responseModel;
+        }
+
+        public async Task<ResponseModel> GetBusinessServices(int businessId, string uid)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            List<BusinessService_VM> cities = await _uow.BusinessServiceRepository.GetAll(x => x.BusinessId == businessId && x.Business.UserId == uid).Select(x => new BusinessService_VM
+            {
+                Id = x.Id,
+                Name = x.Service.Title
+            }).ToListAsync();
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 201;
+            responseModel.Data = new DataModel { Data = cities, Message = "" };
             return responseModel;
         }
         //public async Task<ResponseModel> CreateBusiness()

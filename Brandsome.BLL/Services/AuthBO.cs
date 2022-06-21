@@ -20,7 +20,7 @@ using Brandsome.DAL.Models;
 using Brandsome.DAL;
 using Brandsome.DAL.Data;
 
-namespace Brandsome.BLL.Service
+namespace Brandsome.BLL.Services
 {
     public class AuthBO : BaseBO, IAuthBO
     {
@@ -53,7 +53,7 @@ namespace Brandsome.BLL.Service
             ApplicationUser appUser = null;
             ResponseModel responseModel = new ResponseModel();
             string Otp = "";
-            string content = $"Your OTP is {Otp}";
+             string content = "";
             await CheckRoles();
             var user = await _uow.UserRepository.GetAll().Where(x => x.PhoneNumber == phoneNumber).FirstOrDefaultAsync();
             if (user == null)
@@ -66,10 +66,9 @@ namespace Brandsome.BLL.Service
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = false,
                     UserName = userName,
-                     FcmToken = deviceToken,
-                      Balance = 0,
-                       
-
+                    FcmToken = deviceToken,
+                    Balance = 0,
+                    Image = "user-placeholder.png"
                 };
                 IdentityResult res = await _userManager.CreateAsync(appUser);
                 if (res.Succeeded)
@@ -94,25 +93,28 @@ namespace Brandsome.BLL.Service
                 }
             }
             Otp = user.Otp;
+            content = $"Your OTP is {Otp}";
             Helpers.SendSMS(phoneNumber, content);
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
             responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number" };
             return responseModel;
         }
         public async Task<ResponseModel> ResendOtp(string phoneNumber)
         {
-           // ApplicationUser appUser = null;
+            // ApplicationUser appUser = null;
             ResponseModel responseModel = new ResponseModel();
             string Otp = "";
             string content = "";
             await CheckRoles();
-            string userOtp = await _uow.UserRepository.GetAll().Where(x => x.PhoneNumber == phoneNumber).Select(x=> x.Otp).FirstOrDefaultAsync();
-           
+            string userOtp = await _uow.UserRepository.GetAll().Where(x => x.PhoneNumber == phoneNumber).Select(x => x.Otp).FirstOrDefaultAsync();
+
             if (userOtp == null)
             {
                 Otp = userOtp;
                 content = $"Your OTP is {Otp}";
                 Helpers.SendSMS(phoneNumber, content);
-                responseModel.StatusCode=200;
+                responseModel.StatusCode = 200;
                 responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number" };
                 return responseModel;
             }
@@ -122,7 +124,7 @@ namespace Brandsome.BLL.Service
                 responseModel.ErrorMessage = "User was not found";
                 return responseModel;
             }
-           
+
         }
 
         public async Task<ResponseModel> VerifyOtp(string phoneNumber, string otp)
@@ -144,7 +146,7 @@ namespace Brandsome.BLL.Service
                     appUser.PhoneNumberConfirmed = true;
                     await _userManager.UpdateAsync(appUser);
                 }
-                 await _signInManager.SignInAsync(appUser, false);
+                //await _signInManager.SignInAsync(appUser, false);
                 var roles = await _userManager.GetRolesAsync(appUser);
                 var claims = Tools.GenerateClaims(appUser, roles);
                 string JwtToken = Tools.GenerateJWT(claims);
@@ -163,9 +165,10 @@ namespace Brandsome.BLL.Service
 
         }
 
-        public async Task<ResponseModel> CompleteProfile(CompleteProfile_VM profile, string uid)
+        public async Task<ResponseModel> CompleteProfile(CompleteProfile_VM profile, string uid, HttpRequest request)
         {
             ResponseModel responseModel = new ResponseModel();
+
             var user = await _userManager.FindByIdAsync(uid);
             if (user == null)
             {
@@ -176,7 +179,7 @@ namespace Brandsome.BLL.Service
             }
             user.DateOfBirth = profile.Birthday ?? user.DateOfBirth;
             user.GenderId = profile.GenderId ?? user.GenderId;
-            
+
             IFormFile file = profile.ImageFile;
             if (file != null)
             {
@@ -184,7 +187,7 @@ namespace Brandsome.BLL.Service
                 //{
                 //    Helpers.DeleteFile(user.Image, "wwwroot/uploads");
                 //}
-                string NewFileName = await Helpers.SaveFile("wwwroot/uploads", file);
+                string NewFileName = await Helpers.SaveFile("wwwroot/Images", file);
 
                 user.Image = NewFileName;
             }
@@ -196,9 +199,18 @@ namespace Brandsome.BLL.Service
                 responseModel.Data = new DataModel { Data = "", Message = "" };
                 return responseModel;
             }
+            Profile_VM prof = await _uow.UserRepository.GetAll(x => x.Id == uid).Select(p => new Profile_VM
+            {
+                ImageUrl = $"{request.Scheme}://{request.Host}/Uploads/{p.Image}",
+                Gender = p.Gender.Title ?? "",
+                PhoneNumber = p.PhoneNumber,
+                UserName = p.UserName ?? "",
+                GenderId = p.GenderId ?? 0,
+                BirthDate = p.DateOfBirth.ToString() ?? "",
+            }).FirstOrDefaultAsync();
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
-            responseModel.Data = new DataModel { Data = "", Message = "Profile completed" };
+            responseModel.Data = new DataModel { Data = "", Message = "Profile updated" };
             return responseModel;
         }
 
@@ -219,39 +231,38 @@ namespace Brandsome.BLL.Service
             return responseModel;
         }
 
-        public async Task<ResponseModel> GetFollowedBusinesses(string uid)
+        public async Task<ResponseModel> GetFollowedBusinesses(string uid, HttpRequest request)
         {
             ResponseModel responseModel = new ResponseModel();
             List<FollowedBusiness_VM> businesses = await _uow.BusinessFollowRepository.GetAll(x => x.UserId == uid).Select(bf => new FollowedBusiness_VM
             {
                 Id = bf.Id,
-                Image = bf.Business.Image,
+                Image = $"{request.Scheme}://{request.Host}/Uploads/{bf.Business.Image}",
                 Name = bf.Business.BusinessName,
-                Type = bf.Business.BusinessServices.Where(bs=> bs.IsDeleted == false).First().Service.SubCategory.Category.Title + "/" + bf.Business.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Title,
-                Services = bf.Business.BusinessServices.Where(bs=> bs.IsDeleted == false).Select(bs => new BusinessService_VM
+                Type = bf.Business.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Category.Title + "/" + bf.Business.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Title,
+                Services = bf.Business.BusinessServices.Where(bs => bs.IsDeleted == false).Select(bs => new BusinessService_VM
                 {
-                    Id=bs.Service.Id,
+                    Id = bs.Service.Id,
                     Name = bs.Service.Title
                 }).ToList(),
-             }).ToListAsync();
+            }).ToListAsync();
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
             responseModel.Data = new DataModel { Data = businesses, Message = "" };
             return responseModel;
         }
 
-        public async Task<ResponseModel> GetProfile(string uid)
+        public async Task<ResponseModel> GetProfile(string uid, HttpRequest request)
         {
             ResponseModel responseModel = new ResponseModel();
-            Profile_VM profile = await _uow.UserRepository.GetAll(x=> x.Id == uid).Select(u => new Profile_VM
+            Profile_VM profile = await _uow.UserRepository.GetAll(x => x.Id == uid).Select(u => new Profile_VM
             {
-                  BirthDate = u.DateOfBirth,
-                     Email = u.Email,
-                      Gender = u.Gender.Title,
-                       GenderId = u.GenderId ?? 0,
-                        ImageUrl = u.Image,
-                         PhoneNumber = u.PhoneNumber,
-                          UserName = u.UserName,
+                BirthDate = u.DateOfBirth.ToString() ?? "",
+                Gender = u.Gender.Title ?? "",
+                GenderId = u.GenderId ?? 0,
+                ImageUrl = $"{request.Scheme}://{request.Host}/Images/{u.Image.Trim()}".Trim(),
+                PhoneNumber = u.PhoneNumber ?? "",
+                UserName = u.UserName ?? "",
             }).FirstOrDefaultAsync();
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;

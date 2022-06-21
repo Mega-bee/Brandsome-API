@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Brandsome.BLL.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,11 +51,11 @@ namespace Brandsome.API.Controllers
 
         
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
-        [HttpPost]
-        public async Task<IActionResult> CompleteProfile([FromForm] CompleteProfile_VM profile)
+        [HttpPut]
+        public async Task<IActionResult> UpdateProfile([FromForm] CompleteProfile_VM profile)
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            return Ok(await _auth.CompleteProfile(profile, uid));
+            return Ok(await _auth.CompleteProfile(profile, uid, Request));
         }
 
         [HttpGet]
@@ -64,7 +63,7 @@ namespace Brandsome.API.Controllers
         public async Task<IActionResult> GetFollowedBusinessses()
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            return Ok(await _auth.GetFollowedBusinesses(uid));
+            return Ok(await _auth.GetFollowedBusinesses(uid,Request));
         }
 
 
@@ -74,7 +73,7 @@ namespace Brandsome.API.Controllers
         public async Task<IActionResult> GetProfile()
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            return Ok(await _auth.GetProfile(uid));
+            return Ok(await _auth.GetProfile(uid, Request));
         }
 
 

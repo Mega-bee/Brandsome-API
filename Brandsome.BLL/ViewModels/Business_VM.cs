@@ -41,6 +41,7 @@ namespace Brandsome.BLL.ViewModels
         public string PhoneNumber { get; set; }
         public List<Post_VM> Posts { get; set; }
         public List<ReviewBase_VM> Reviews { get; set; }
+        public bool IsUserBusiness { get; set; }
     }
 
     public partial class BusinessCity_VM : BusinessBase_VM

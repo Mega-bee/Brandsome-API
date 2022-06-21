@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Brandsome.BLL.Utilities;
 using Brandsome.DAL;
 
-namespace Brandsome.BLL.Service
+namespace Brandsome.BLL.Services
 {
     public class BaseBO
     {

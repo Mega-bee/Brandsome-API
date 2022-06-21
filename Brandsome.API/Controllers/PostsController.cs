@@ -8,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace Brandsome.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class PostsController : ControllerBase
+   
+    public class PostsController : APIBaseController
     {
         private readonly IBusinessBL _Bbl;
 

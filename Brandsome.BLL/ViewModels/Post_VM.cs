@@ -24,7 +24,7 @@ namespace Brandsome.BLL.ViewModels
     public partial class PostMedia_VM
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Url { get; set; }
         public int? MediaTypeId { get; set; }
         public string MediaTypeName { get; set; }
     }

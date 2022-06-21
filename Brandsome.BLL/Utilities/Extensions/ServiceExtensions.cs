@@ -13,7 +13,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.OpenApi.Models;
 using Brandsome.DAL.Models;
 using Brandsome.DAL.Data;
-using Brandsome.BLL.TokenProviders.Utilities;
+//using Brandsome.BLL.TokenProviders.Utilities;
 using Microsoft.AspNetCore.Identity;
 
 namespace Brandsome.BLL.Utilities.Extensions
@@ -113,7 +113,7 @@ namespace Brandsome.BLL.Utilities.Extensions
         {
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Template", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Brandsome", Version = "v1" });
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
                     Name = "Authorization",
