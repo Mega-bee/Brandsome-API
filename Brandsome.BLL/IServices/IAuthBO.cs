@@ -10,5 +10,7 @@ namespace Brandsome.BLL.IServices
         Task<ResponseModel> RequestOtp(string phoneNumber, string userName, string deviceToken);
         Task<ResponseModel> VerifyOtp(string phoneNumber, string otp);
         Task<ResponseModel> GetFollowedBusinesses(string uid);
+
+        Task<ResponseModel> GetProfile(string uid);
     }
 }

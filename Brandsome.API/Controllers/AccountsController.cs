@@ -63,6 +63,16 @@ namespace Brandsome.API.Controllers
 
 
 
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        public async Task<IActionResult> GetProfile()
+        {
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _auth.GetProfile(uid));
+        }
+
+
+
 
 
 

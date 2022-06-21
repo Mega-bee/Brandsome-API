@@ -67,6 +67,8 @@ namespace Brandsome.BLL.Service
                     PhoneNumberConfirmed = false,
                     UserName = userName,
                      FcmToken = deviceToken,
+                      Balance = 0,
+                       
 
                 };
                 IdentityResult res = await _userManager.CreateAsync(appUser);
@@ -126,7 +128,12 @@ namespace Brandsome.BLL.Service
             if (user.Otp == otp)
             {
                 appUser = await _userManager.FindByIdAsync(user.Id);
-                await _signInManager.SignInAsync(appUser, false);
+                if (appUser.PhoneNumberConfirmed == false)
+                {
+                    appUser.PhoneNumberConfirmed = true;
+                    await _userManager.UpdateAsync(appUser);
+                }
+                 await _signInManager.SignInAsync(appUser, false);
                 var roles = await _userManager.GetRolesAsync(appUser);
                 var claims = Tools.GenerateClaims(appUser, roles);
                 string JwtToken = Tools.GenerateJWT(claims);
@@ -158,6 +165,7 @@ namespace Brandsome.BLL.Service
             }
             user.DateOfBirth = profile.Birthday ?? user.DateOfBirth;
             user.GenderId = profile.GenderId ?? user.GenderId;
+            
             IFormFile file = profile.ImageFile;
             if (file != null)
             {
@@ -239,6 +247,8 @@ namespace Brandsome.BLL.Service
             responseModel.Data = new DataModel { Data = profile, Message = "" };
             return responseModel;
         }
+
+
         //        public async Task<ResponseModel> EmailSignIn(EmailSignIn_VM model)
         //        {
         //            ResponseModel responseModel = new ResponseModel();
