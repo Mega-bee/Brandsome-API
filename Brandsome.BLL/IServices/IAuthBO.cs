@@ -12,5 +12,7 @@ namespace Brandsome.BLL.IServices
         Task<ResponseModel> GetFollowedBusinesses(string uid);
 
         Task<ResponseModel> GetProfile(string uid);
+
+        Task<ResponseModel> ResendOtp(string phoneNumber);
     }
 }

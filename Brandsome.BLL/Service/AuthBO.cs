@@ -100,18 +100,29 @@ namespace Brandsome.BLL.Service
         }
         public async Task<ResponseModel> ResendOtp(string phoneNumber)
         {
-            ApplicationUser appUser = null;
+           // ApplicationUser appUser = null;
             ResponseModel responseModel = new ResponseModel();
             string Otp = "";
             string content = "";
             await CheckRoles();
             string userOtp = await _uow.UserRepository.GetAll().Where(x => x.PhoneNumber == phoneNumber).Select(x=> x.Otp).FirstOrDefaultAsync();
            
-            Otp = userOtp;
-             content = $"Your OTP is {Otp}";
-            Helpers.SendSMS(phoneNumber, content);
-            responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number" };
-            return responseModel;
+            if (userOtp == null)
+            {
+                Otp = userOtp;
+                content = $"Your OTP is {Otp}";
+                Helpers.SendSMS(phoneNumber, content);
+                responseModel.StatusCode=200;
+                responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number" };
+                return responseModel;
+            }
+            else
+            {
+                responseModel.StatusCode = 404;
+                responseModel.ErrorMessage = "User was not found";
+                return responseModel;
+            }
+           
         }
 
         public async Task<ResponseModel> VerifyOtp(string phoneNumber, string otp)

@@ -26,6 +26,12 @@ namespace Brandsome.API.Controllers
         public async Task<IActionResult> RequestOtp([FromForm] string phoneNumber,[FromForm] string username,[FromForm] string fcmToken)
         {
             return Ok(await _auth.RequestOtp(phoneNumber, username, fcmToken));
+        }  
+        
+        [HttpPost]
+        public async Task<IActionResult> ResendOtp([FromForm] string phoneNumber)
+        {
+            return Ok(await _auth.ResendOtp(phoneNumber));
         }
 
         [HttpPost]

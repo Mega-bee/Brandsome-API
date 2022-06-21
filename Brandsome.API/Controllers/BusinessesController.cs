@@ -45,7 +45,7 @@ namespace Brandsome.API.Controllers
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPost]
-        public async Task<IActionResult> AddReview([FromForm] CreateReview_VM review)
+        public async Task<IActionResult> CreateReview([FromForm] CreateReview_VM review)
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             return Ok(await _Bbl.AddReview(review, uid));
