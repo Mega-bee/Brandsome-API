@@ -26,6 +26,7 @@ namespace Brandsome.BLL.ViewModels
     {
         public List<BusinessService_VM> Services { get; set; }
         public List<BusinessCity_VM> Cities { get; set; }
+        public string Description { get; set; }
         public int ViewCount { get; set; }
         public int PostCount { get; set; }
         public int ReviewCount { get; set; }

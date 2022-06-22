@@ -9,6 +9,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Brandsome.BLL.ViewModels;
 using Brandsome.BLL.Utilities.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Brandsome.BLL.Utilities.CustomMiddleWare
 {
@@ -52,7 +54,10 @@ namespace Brandsome.BLL.Utilities.CustomMiddleWare
                 ErrorMessage = "Something Went Wrong",
                 StatusCode = 500
             };
-            string jsonString = JsonSerializer.Serialize(resp);
+            string jsonString = JsonConvert.SerializeObject(resp,new JsonSerializerSettings
+            {
+                 ContractResolver = new CamelCasePropertyNamesContractResolver()
+            });
             return context.Response.WriteAsync(jsonString);
         }
 

@@ -32,6 +32,7 @@ namespace Brandsome.BLL.Services
                     Id = bc.Id,
                     Name = bc.City.Title
                 }).ToList(),
+                 Description = business.Description,
                 Name = business.BusinessName ?? "",
                 Image = $"{request.Scheme}://{request.Host}/Images/{business.Image}",
                 PostCount = business.BusinessPostCount ?? 0,
