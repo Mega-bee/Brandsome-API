@@ -48,7 +48,7 @@ namespace Brandsome.BLL.Services
             }
         }
 
-        public async Task<ResponseModel> RequestOtp(string phoneNumber, string userName, string deviceToken)
+        public async Task<ResponseModel> RequestOtp(string phoneNumber, string userName)
         {
             ApplicationUser appUser = null;
             ResponseModel responseModel = new ResponseModel();
@@ -66,7 +66,6 @@ namespace Brandsome.BLL.Services
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = false,
                     UserName = userName,
-                    FcmToken = deviceToken,
                     Balance = 0,
                     Image = "user-placeholder.png"
                 };
@@ -115,6 +114,7 @@ namespace Brandsome.BLL.Services
                 content = $"Your OTP is {Otp}";
                 Helpers.SendSMS(phoneNumber, content);
                 responseModel.StatusCode = 200;
+                responseModel.ErrorMessage = "";
                 responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number" };
                 return responseModel;
             }
@@ -122,9 +122,29 @@ namespace Brandsome.BLL.Services
             {
                 responseModel.StatusCode = 404;
                 responseModel.ErrorMessage = "User was not found";
+                responseModel.Data = new DataModel { Data = "", Message = "" };
                 return responseModel;
             }
 
+        }
+
+        public async Task<ResponseModel> SetFcmToken(string uid,string token)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            ApplicationUser user = await _userManager.FindByIdAsync(uid);
+            if(user == null)
+            {
+                responseModel.StatusCode = 404;
+                responseModel.ErrorMessage = "User was not found";
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                return responseModel;
+            }
+            user.FcmToken = token;
+            await _userManager.UpdateAsync(user);
+            responseModel.StatusCode = 200;
+            responseModel.ErrorMessage = "";
+            responseModel.Data = new DataModel { Data = "", Message = "Fcm token succesfully set" };
+            return responseModel;
         }
 
         public async Task<ResponseModel> VerifyOtp(string phoneNumber, string otp)

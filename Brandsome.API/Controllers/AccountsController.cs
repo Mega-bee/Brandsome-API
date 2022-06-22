@@ -22,9 +22,9 @@ namespace Brandsome.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RequestOtp([FromForm] string phoneNumber,[FromForm] string username,[FromForm] string fcmToken)
+        public async Task<IActionResult> RequestOtp([FromForm] string phoneNumber,[FromForm] string username)
         {
-            return Ok(await _auth.RequestOtp(phoneNumber, username, fcmToken));
+            return Ok(await _auth.RequestOtp(phoneNumber, username));
         }  
         
         [HttpPost]
