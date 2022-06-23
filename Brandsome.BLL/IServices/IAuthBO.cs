@@ -7,7 +7,7 @@ namespace Brandsome.BLL.IServices
     public interface IAuthBO
     {
         Task<ResponseModel> CompleteProfile(CompleteProfile_VM profile, string uid, HttpRequest request);
-        Task<ResponseModel> GetAccountSettings(string uid);
+        Task<ResponseModel> GetAccountSettings(string uid, HttpRequest request);
         Task<ResponseModel> RequestOtp(string phoneNumber, string userName);
         Task<ResponseModel> VerifyOtp(string phoneNumber, string otp);
         Task<ResponseModel> GetFollowedBusinesses(string uid, HttpRequest request);
@@ -15,5 +15,6 @@ namespace Brandsome.BLL.IServices
         Task<ResponseModel> GetProfile(string uid, HttpRequest request);
 
         Task<ResponseModel> ResendOtp(string phoneNumber);
+
     }
 }

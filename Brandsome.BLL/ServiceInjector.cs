@@ -36,6 +36,7 @@ namespace Brandsome.BLL
             _services.AddScoped<IUnitOfWork, UnitOfWork>();
             _services.AddScoped<IGenericRepos<AspNetUser>, GenericRepos<AspNetUser>>();
             _services.AddScoped<IGenericRepos<Business>, GenericRepos<Business>>();
+            _services.AddScoped<IGenericRepos<City>, GenericRepos<City>>();
             _services.AddScoped<IGenericRepos<BusinessFollow>, GenericRepos<BusinessFollow>>();
             _services.AddScoped<IGenericRepos<BusinessReview>, GenericRepos<BusinessReview>>();
             _services.AddScoped<IGenericRepos<BusinessCity>, GenericRepos<BusinessCity>>();

@@ -10,6 +10,7 @@ namespace Brandsome.BLL.ViewModels
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string Image { get; set; }
     }
     public partial class Service_VM : BaseInterests_VM
     {
@@ -18,11 +19,12 @@ namespace Brandsome.BLL.ViewModels
 
     public partial class Category_VM : BaseInterests_VM
     {
-
+        public List<SubCategory_VM> SubCategories { set; get; }
     }
 
     public partial class SubCategory_VM : BaseInterests_VM
     {
-
+        
+        public List<Service_VM> Services { set; get; }
     }
 }

@@ -33,6 +33,7 @@ namespace Brandsome.DAL
         private ICategoryRepository categoryRepository;
         private ISubcategoryRepository subcategoryRepository;
         private IServiceRepository serviceRepository;
+        private ICityRepository cityRepository;
 
         #endregion
 
@@ -50,6 +51,7 @@ namespace Brandsome.DAL
         public ICategoryRepository CategoryRepository => categoryRepository ?? new CategoryRepository(_context);
         public ISubcategoryRepository SubcategoryRepository => subcategoryRepository ?? new SubcategoryRepository(_context);
         public IServiceRepository ServiceRepository => serviceRepository ?? new ServiceRepository(_context);
+        public ICityRepository CityRepository => cityRepository ?? new CityRepository(_context);
         #endregion
 
 

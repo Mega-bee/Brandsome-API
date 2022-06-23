@@ -22,6 +22,7 @@ namespace Brandsome.DAL
         ICategoryRepository CategoryRepository { get; }
         ISubcategoryRepository SubcategoryRepository { get; }
         IServiceRepository ServiceRepository { get; }
+        ICityRepository CityRepository { get; }
         void Save();
     }
 }

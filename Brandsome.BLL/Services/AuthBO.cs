@@ -234,7 +234,7 @@ namespace Brandsome.BLL.Services
             return responseModel;
         }
 
-        public async Task<ResponseModel> GetAccountSettings(string uid)
+        public async Task<ResponseModel> GetAccountSettings(string uid,HttpRequest request)
         {
             ResponseModel responseModel = new ResponseModel();
             AccountSettings_VM settings = await _uow.UserRepository.GetAll().Where(x => x.Id == uid).Select(x => new AccountSettings_VM
@@ -244,6 +244,11 @@ namespace Brandsome.BLL.Services
                     Id = b.Id,
                     Name = b.BusinessName,
                 }).ToList(),
+                 BusinessesCount = x.Businesses.Count(),
+                  Name = x.UserName,
+                   //FollowingCount = x.BusinessFollows.Count(),
+                    ReviewCount = x.BusinessReviews.Where(x=> x.IsDeleted == false).Count(),
+                ImageUrl = $"{request.Scheme}://{request.Host}/Images/{x.Image.Trim()}".Trim(),
             }).FirstOrDefaultAsync();
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;

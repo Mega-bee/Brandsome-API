@@ -8,5 +8,6 @@ namespace Brandsome.BLL.IServices
         Task<ResponseModel> GetCategories();
         Task<ResponseModel> GetServices(int subcategoryId);
         Task<ResponseModel> GetSubCategories(int categoryId);
+        Task<ResponseModel> GetMainLists();
     }
 }

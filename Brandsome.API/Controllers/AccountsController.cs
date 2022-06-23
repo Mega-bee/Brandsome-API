@@ -44,7 +44,7 @@ namespace Brandsome.API.Controllers
         public async Task<IActionResult> GetAccountSetings()
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            return Ok(await _auth.GetAccountSettings(uid));
+            return Ok(await _auth.GetAccountSettings(uid,Request));
         }
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]

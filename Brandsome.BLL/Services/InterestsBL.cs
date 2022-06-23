@@ -59,5 +59,35 @@ namespace Brandsome.BLL.Services
             responseModel.Data = new DataModel { Data = services, Message = "" };
             return responseModel;
         }
+
+        public async Task<ResponseModel> GetMainLists()
+        {
+            ResponseModel responseModel = new ResponseModel();
+            SplashScreen_VM mainLists = new SplashScreen_VM();
+            mainLists.Categories = await _uow.CategoryRepository.GetAll(x => x.IsDeleted == false).Select(c => new Category_VM
+            {
+                Id = c.Id,
+                Name = c.Title,
+                SubCategories = c.SubCategories.Where(sc => sc.IsDeleted == false).Select(sc => new SubCategory_VM
+                {
+                    Id = sc.Id,
+                    Name = sc.Title,
+                    Services = sc.Services.Where(s => s.IsDeleted == false).Select(s => new Service_VM
+                    {
+                        Id = s.Id,
+                        Name = s.Title
+                    }).ToList(),
+                }).ToList(),
+            }).ToListAsync();
+            mainLists.Cities = await _uow.CityRepository.GetAll(x => x.IsDeleted == false).Select(c => new City_VM
+            {
+                Id = c.Id,
+                Name = c.Title,
+            }).ToListAsync();
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = mainLists, Message = "" };
+            return responseModel;
+        }
     }
 }

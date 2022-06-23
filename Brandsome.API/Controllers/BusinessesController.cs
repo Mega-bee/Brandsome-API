@@ -2,13 +2,15 @@
 using Brandsome.BLL.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Brandsome.API.Controllers
 {
-   
+
+    [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
     public class BusinessesController : APIBaseController
     {
         private readonly IBusinessBL _Bbl;
@@ -18,11 +20,11 @@ namespace Brandsome.API.Controllers
             _Bbl = bBL;
         }
 
-        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
-        [HttpGet("{serviceId?}")]
-        public async Task <IActionResult> GetBusinesses([FromQuery] string sortBy, [FromRoute] int serviceId = 0)
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task <IActionResult> GetBusinesses([FromQuery] string sortBy, [FromQuery] List<int> services)
         {
-            return Ok(await _Bbl.GetBusinsses(serviceId,sortBy, Request));
+            return Ok(await _Bbl.GetBusinsses(services,sortBy, Request));
         }
 
 
@@ -50,7 +52,6 @@ namespace Brandsome.API.Controllers
         //}
 
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPost]
         public async Task<IActionResult> CreateReview([FromForm] CreateReview_VM review)
         {
@@ -59,7 +60,6 @@ namespace Brandsome.API.Controllers
         }
 
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPost]
         public async Task<IActionResult> CreateBusiness([FromForm] CreateBusiness_VM business)
         {
@@ -67,7 +67,6 @@ namespace Brandsome.API.Controllers
             return Ok(await _Bbl.CreateBusiness(uid, business));
         }
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPost]
         public async Task<IActionResult> UpdateBusiness([FromForm] CreateBusiness_VM business)
         {
@@ -75,7 +74,6 @@ namespace Brandsome.API.Controllers
             return Ok(await _Bbl.UpdateBusiness( business));
         } 
         
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPut("{businessCityId}")]
         public async Task<IActionResult> DeleteBusinessCity([FromRoute] int businessCityId)
         {
@@ -83,7 +81,6 @@ namespace Brandsome.API.Controllers
             return Ok(await _Bbl.DeleteBusinessCity(uid,businessCityId));
         } 
         
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPut("{businessServiceId}")]
         public async Task<IActionResult> DeleteBusinessService([FromRoute] int businessServiceId)
         {
@@ -91,7 +88,6 @@ namespace Brandsome.API.Controllers
             return Ok(await _Bbl.DeleteBusinessService(uid, businessServiceId));
         }
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpGet("{businessId}")]
         public async Task<IActionResult> GetBusinessCities([FromRoute] int businessId)
         {
@@ -99,7 +95,6 @@ namespace Brandsome.API.Controllers
             return Ok(await _Bbl.GetBusinessCities(businessId, uid));
         }
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpGet("{businessId}")]
         public async Task<IActionResult> GetBusinessServices([FromRoute] int businessId)
         {
@@ -107,6 +102,15 @@ namespace Brandsome.API.Controllers
             return Ok(await _Bbl.GetBusinessServices(businessId, uid));
         }
 
+
+
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [HttpPut("{businessId}")]
+        public async Task<IActionResult> DeleteBusiness([FromRoute] int businessId)
+        {
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _Bbl.DeleteBusiness(uid, businessId));
+        }
 
 
 

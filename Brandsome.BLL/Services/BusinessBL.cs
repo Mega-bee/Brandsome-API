@@ -21,7 +21,7 @@ namespace Brandsome.BLL.Services
         {
         }
 
-        public async Task<ResponseModel> GetBusinsses(int serviceId, string sortBy, HttpRequest request)
+        public async Task<ResponseModel> GetBusinsses( List<int> services, string sortBy, HttpRequest request)
         {
             ResponseModel responseModel = new ResponseModel();
             List<Business_VM> businesses =await _uow.BusinessRepository.GetAll().Where(x => x.IsDeleted == false).Select(business => new Business_VM
@@ -47,15 +47,21 @@ namespace Brandsome.BLL.Services
             }).OrderByDescending(x => x.Id).ToListAsync();
 
 
-            if (serviceId > 0)
+            if (services != null)
             {
-                businesses = businesses.Where(x => x.Services.Any(s => s.Id == serviceId)).ToList();
+                businesses = businesses.Where(x => x.Services.Any(s => services.Contains(s.Id))).ToList();
             }
 
             if (!string.IsNullOrEmpty(sortBy))
             {
-                var propertyInfo = typeof(Business_VM).GetProperty(sortBy);
-                businesses = businesses.OrderByDescending(x => propertyInfo.GetValue(x, null)).ToList();
+                if(sortBy == "A-Z")
+                {
+                    businesses = businesses.OrderBy(x=> x.Name).ToList();
+                } else
+                {
+                    var propertyInfo = typeof(Business_VM).GetProperty(sortBy);
+                    businesses = businesses.OrderByDescending(x => propertyInfo.GetValue(x, null)).ToList();
+                }
             }
             responseModel.Data = new DataModel { Data = businesses, Message = "" };
             responseModel.ErrorMessage = "";
@@ -421,6 +427,25 @@ namespace Brandsome.BLL.Services
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 201;
             responseModel.Data = new DataModel { Data = cities, Message = "" };
+            return responseModel;
+        }
+
+        public async Task<ResponseModel> DeleteBusiness(string uid,int businessId)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            Business business = await _uow.BusinessRepository.GetAll(x => x.Id == businessId && x.UserId == uid && x.IsDeleted == false).FirstOrDefaultAsync();
+            if (business == null)
+            {
+                responseModel.ErrorMessage = "";
+                responseModel.StatusCode = 404;
+                responseModel.Data = new DataModel { Data = "", Message = "Business not found" };
+                return responseModel;
+            }
+            business.IsDeleted = true;
+            await _uow.BusinessRepository.Update(business);
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = "", Message = "Business succesfully deleted" };
             return responseModel;
         }
         //public async Task<ResponseModel> CreateBusiness()

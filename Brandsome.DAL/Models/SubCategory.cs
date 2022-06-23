@@ -22,6 +22,8 @@ namespace Brandsome.DAL.Models
         public bool? IsDeleted { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime? CreatedDate { get; set; }
+        [StringLength(511)]
+        public string Image { get; set; }
 
         [ForeignKey("CategoryId")]
         [InverseProperty("SubCategories")]

@@ -132,6 +132,11 @@ namespace Brandsome.BLL.ViewModels
     partial class AccountSettings_VM
     {
         public List<AccountSettingsBusiness_VM> Businesses { get; set; }
+        public string Name { get; set; }
+        public int ReviewCount { get; set; }
+        public int FollowingCount { get; set; }
+        public int BusinessesCount { get; set; }
+        public string ImageUrl { get; set; }
     }
 
     public partial class AccountSettingsBusiness_VM

@@ -60,7 +60,10 @@ namespace Brandsome.API
             services.AddSignalR();
             IdentityModelEventSource.ShowPII = true;
             services.ConfigureDbContext(Configuration);
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+            });
             services.AddRazorPages();
             services.ConfigureAuthentication();
             new ServiceInjector(services).Render();
