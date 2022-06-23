@@ -23,6 +23,8 @@ namespace Brandsome.DAL
         ISubcategoryRepository SubcategoryRepository { get; }
         IServiceRepository ServiceRepository { get; }
         ICityRepository CityRepository { get; }
+        IPostLikeRepository PostLikeRepository { get; }
+        IBusinessPhoneClickRepository BusinessPhoneClickRepository { get; }
         void Save();
     }
 }

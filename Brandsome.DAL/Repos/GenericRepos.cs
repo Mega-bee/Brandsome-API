@@ -23,6 +23,7 @@ namespace Brandsome.DAL.Repos
         {
             try
             {
+
                 await _context.Set<T>().AddAsync(entity);
                 await _context.SaveChangesAsync();
             }

@@ -104,13 +104,13 @@ namespace Brandsome.API.Controllers
 
 
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPut("{businessId}")]
         public async Task<IActionResult> DeleteBusiness([FromRoute] int businessId)
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             return Ok(await _Bbl.DeleteBusiness(uid, businessId));
         }
+
 
 
 

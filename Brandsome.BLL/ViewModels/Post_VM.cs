@@ -16,7 +16,7 @@ namespace Brandsome.BLL.ViewModels
         public List<PostMedia_VM> PostMedia { get; set; }
         public string Description { get; set; }
         public int LikeCount { get; set; }
-        public bool IsLiked { get; set; }
+        public bool? IsLiked { get; set; }
         public string City { get; set; }
         public string Type { get; set; }
     }
@@ -27,6 +27,13 @@ namespace Brandsome.BLL.ViewModels
         public string Url { get; set; }
         public int? MediaTypeId { get; set; }
         public string MediaTypeName { get; set; }
+    }
+
+    public partial class PostLike_VM
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Image { get; set; }
     }
 
     public partial class CreatePost_VM

@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Brandsome.DAL.Models
 {
-    [Index("NormalizedEmail", Name = "EmailIndex")]
     public partial class AspNetUser
     {
         public AspNetUser()

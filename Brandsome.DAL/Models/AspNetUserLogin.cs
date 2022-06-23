@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Brandsome.DAL.Models
 {
-    [Index("UserId", Name = "IX_AspNetUserLogins_UserId")]
     public partial class AspNetUserLogin
     {
         [Key]
@@ -15,6 +14,7 @@ namespace Brandsome.DAL.Models
         public string ProviderKey { get; set; }
         public string ProviderDisplayName { get; set; }
         [Required]
+        [StringLength(450)]
         public string UserId { get; set; }
 
         [ForeignKey("UserId")]

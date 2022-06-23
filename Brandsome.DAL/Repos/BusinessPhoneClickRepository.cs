@@ -8,12 +8,10 @@ using System.Threading.Tasks;
 
 namespace Brandsome.DAL.Repos
 {
-    public class BusinessRepository : GenericRepos<Business>, IBusinessRepository
+    public class BusinessPhoneClickRepository : GenericRepos<BusinessPhoneClick>, IBusinessPhoneClickRepository
     {
-        public BusinessRepository(BrandsomeDbContext context) : base(context)
+        public BusinessPhoneClickRepository(BrandsomeDbContext context) : base(context)
         {
         }
-
-
     }
 }

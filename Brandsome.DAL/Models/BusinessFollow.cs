@@ -16,7 +16,7 @@ namespace Brandsome.DAL.Models
         public string UserId { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime? CreatedDate { get; set; }
-        public bool? IsDeleted { get; set; }
+        public bool? IsFollow { get; set; }
 
         [ForeignKey("BusinessId")]
         [InverseProperty("BusinessFollows")]

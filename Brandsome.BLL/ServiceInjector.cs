@@ -33,6 +33,8 @@ namespace Brandsome.BLL
             _services.AddScoped<IAuthBO, AuthBO>();
             _services.AddScoped<IBusinessBL, BusinessBL>();
             _services.AddScoped<IInterestsBL, InterestsBL>();
+            _services.AddScoped<IHomePageService, HomePageService>();
+            _services.AddScoped<IPostsBL, PostsBL>();
             _services.AddScoped<IUnitOfWork, UnitOfWork>();
             _services.AddScoped<IGenericRepos<AspNetUser>, GenericRepos<AspNetUser>>();
             _services.AddScoped<IGenericRepos<Business>, GenericRepos<Business>>();
@@ -45,7 +47,9 @@ namespace Brandsome.BLL
             _services.AddScoped<IGenericRepos<SubCategory>, GenericRepos<SubCategory>>();
             _services.AddScoped<IGenericRepos<Service>, GenericRepos<Service>>();
             _services.AddScoped<IGenericRepos<Post>, GenericRepos<Post>>();
+            _services.AddScoped<IGenericRepos<PostLike>, GenericRepos<PostLike>>();
             _services.AddScoped<IGenericRepos<BusinessService>, GenericRepos<BusinessService>>();
+            _services.AddScoped<IGenericRepos<BusinessPhoneClick>, GenericRepos<BusinessPhoneClick>>();
             _services.AddScoped<IGenericRepos<Device>, GenericRepos<Device>>();
             _services.AddScoped<NotificationHelper>();
             _services.AddScoped<ValidationFilterAttribute>();

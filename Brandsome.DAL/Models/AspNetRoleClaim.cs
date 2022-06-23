@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Brandsome.DAL.Models
 {
-    [Index("RoleId", Name = "IX_AspNetRoleClaims_RoleId")]
     public partial class AspNetRoleClaim
     {
         [Key]
         public int Id { get; set; }
         [Required]
+        [StringLength(450)]
         public string RoleId { get; set; }
         public string ClaimType { get; set; }
         public string ClaimValue { get; set; }

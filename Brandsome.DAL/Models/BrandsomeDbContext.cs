@@ -52,21 +52,8 @@ namespace Brandsome.DAL.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<AspNetRole>(entity =>
-            {
-                entity.HasIndex(e => e.NormalizedName, "RoleNameIndex")
-                    .IsUnique()
-                    .HasFilter("([NormalizedName] IS NOT NULL)");
-            });
-
             modelBuilder.Entity<AspNetUser>(entity =>
             {
-                entity.HasIndex(e => e.NormalizedUserName, "UserNameIndex")
-                    .IsUnique()
-                    .HasFilter("([NormalizedUserName] IS NOT NULL)");
-
-                entity.Property(e => e.Image).IsFixedLength();
-
                 entity.HasOne(d => d.Gender)
                     .WithMany(p => p.AspNetUsers)
                     .HasForeignKey(d => d.GenderId)
@@ -83,8 +70,6 @@ namespace Brandsome.DAL.Models
                             j.HasKey("UserId", "RoleId");
 
                             j.ToTable("AspNetUserRoles");
-
-                            j.HasIndex(new[] { "RoleId" }, "IX_AspNetUserRoles_RoleId");
                         });
             });
 

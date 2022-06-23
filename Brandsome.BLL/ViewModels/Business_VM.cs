@@ -37,8 +37,8 @@ namespace Brandsome.BLL.ViewModels
 
     public partial class BusinessInfo_VM : Business_VM
     {
-        public string Description { get; set; }
-        //public string Type { get; set; }
+        //public string Description { get; set; }
+        public string Type { get; set; }
         public string PhoneNumber { get; set; }
         public List<Post_VM> Posts { get; set; }
         public List<ReviewBase_VM> Reviews { get; set; }

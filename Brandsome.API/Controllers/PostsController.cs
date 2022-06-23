@@ -8,31 +8,43 @@ using System.Threading.Tasks;
 
 namespace Brandsome.API.Controllers
 {
-   
+    [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
     public class PostsController : APIBaseController
     {
-        private readonly IBusinessBL _Bbl;
+        private readonly IPostsBL _postsBL;
 
-        public PostsController(IBusinessBL bbl)
+        public PostsController(IPostsBL postsBl)
         {
-            _Bbl = bbl;
+            _postsBL = postsBl;
         }
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPost]
         public async Task<IActionResult> CreatePost([FromForm] CreatePost_VM post)
         {
-            return Ok(await _Bbl.CreatePost(post));
+            return Ok(await _postsBL.CreatePost(post));
         }
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPut]
         public async Task<IActionResult> UpdatePost([FromForm] CreatePost_VM post)
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            return Ok(await _Bbl.UpdatePost(uid, post));
+            return Ok(await _postsBL.UpdatePost(uid, post));
         }
 
-     
+        [HttpPut("{postId}")]
+        public async Task<IActionResult> DeletePost([FromRoute] int postId)
+        {
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _postsBL.DeletePost(uid,postId));
+        }
+
+        [HttpPut("{postId}")]
+        public async Task<IActionResult> LikePost([FromRoute] int postId,[FromForm] bool isLike)
+        {
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _postsBL.LikePost(uid,postId,isLike));
+        }
+
+
     }
 }

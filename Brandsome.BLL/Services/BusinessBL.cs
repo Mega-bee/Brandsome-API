@@ -49,7 +49,11 @@ namespace Brandsome.BLL.Services
 
             if (services != null)
             {
-                businesses = businesses.Where(x => x.Services.Any(s => services.Contains(s.Id))).ToList();
+                if(services.Count > 0)
+                {
+                    businesses = businesses.Where(x => x.Services.Any(s => services.Contains(s.Id))).ToList();
+                }  
+               
             }
 
             if (!string.IsNullOrEmpty(sortBy))
@@ -87,13 +91,13 @@ namespace Brandsome.BLL.Services
                 Image = $"{request.Scheme}://{request.Host}/Images/{b.Image}",
                 PostCount = b.BusinessPostCount ?? 0,
                 Name = b.BusinessName ?? "",
-                Posts = b.BusinessServices.SelectMany(bs => bs.Posts.Where(p => p.IsDeleted == false)).Select(p => new Post_VM
+                Posts = b.BusinessServices.SelectMany(bs => bs.Posts.Where(p => p.IsDeleted == false && p.BusinessCity.IsDeleted == false && p.BusinessService.IsDeleted == false)).Select(p => new Post_VM
                 {
                     Name = b.BusinessName ?? "",
                     Description = p.Descrption ?? "",
                     LikeCount = p.PostLikeCount ?? 0,
                     Id = p.Id,
-                    IsLiked = p.PostLikes.Any(pl => pl.IsDeleted == false && pl.UserId == uid),
+                    IsLiked = p.PostLikes.Where(pl => pl.UserId == uid).OrderByDescending(pl=> pl.CreatedDate.Value).FirstOrDefault()!= null ? p.PostLikes.Where(pl => pl.UserId == uid).OrderByDescending(pl => pl.CreatedDate.Value).FirstOrDefault().IsLike : false,
                     Type = p.BusinessService.Service.SubCategory.Category.Title + "/" + p.BusinessService.Service.SubCategory.Title + "/" + p.BusinessService.Service.Title,
                     City = p.BusinessCity.City.Title,
                     PostMedia = p.PostMedia.Select(pm => new PostMedia_VM
@@ -102,7 +106,7 @@ namespace Brandsome.BLL.Services
                         Url = $"{request.Scheme}://{request.Host}/posts/media/{pm.FilePath}",
                         MediaTypeId = pm.PostTypeId ?? 0,
                         MediaTypeName = pm.PostType.Title ?? "",
-
+                         
                     }).ToList(),
                     //Cities = p.busi
                 }).ToList(),
@@ -119,7 +123,9 @@ namespace Brandsome.BLL.Services
                       Id=bs.Id,
                        Name = bs.Service.Title ?? ""
                  }).ToList(),
-                  IsUserBusiness = uid == b.UserId
+                  IsUserBusiness = uid == b.UserId,
+                   Type = b.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Category.Title + "/" + b.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Title,
+                    ViewCount = b.BusinessViewCount ?? 0,
             }).FirstOrDefaultAsync();
             responseModel.Data = new DataModel { Data = business, Message = "" };
             responseModel.ErrorMessage = "";
@@ -127,45 +133,45 @@ namespace Brandsome.BLL.Services
             return responseModel;
         }
 
-        public async Task<ResponseModel> FollowBusiness(string uid, int businessId)
-        {
+        //public async Task<ResponseModel> FollowBusiness(string uid, int businessId)
+        //{
 
-            ResponseModel responseModel = new ResponseModel();
-            Business business = await _uow.BusinessRepository.GetFirst(x => x.IsDeleted == false && x.Id == businessId);
-            if (business == null)
-            {
-                responseModel.Data = new DataModel { Data = "", Message = "" };
-                responseModel.ErrorMessage = "Business not found";
-                responseModel.StatusCode = 404;
-                return responseModel;
-            }
-            BusinessFollow follow = await _uow.BusinessFollowRepository.GetFirst(x => x.BusinessId == businessId && x.UserId == uid);
-            if (follow != null)
-            {
-                business.BusinessFollowCount--;
-                follow.IsDeleted = true;
-                await _uow.BusinessFollowRepository.Update(follow);
-                await _uow.BusinessRepository.Update(business);
-                responseModel.Data = new DataModel { Data = "", Message = "" };
-                responseModel.ErrorMessage = "Business unfollowed";
-                responseModel.StatusCode = 200;
-                return responseModel;
-            }
-            follow = new BusinessFollow()
-            {
-                BusinessId = businessId,
-                UserId = uid,
-                CreatedDate = DateTime.UtcNow,
-                IsDeleted = false,
-            };
-            await _uow.BusinessFollowRepository.Create(follow);
-            business.BusinessFollowCount++;
-            await _uow.BusinessRepository.Update(business);
-            responseModel.Data = new DataModel { Data = "", Message = "" };
-            responseModel.ErrorMessage = "Business followed";
-            responseModel.StatusCode = 200;
-            return responseModel;
-        }
+        //    ResponseModel responseModel = new ResponseModel();
+        //    Business business = await _uow.BusinessRepository.GetFirst(x => x.IsDeleted == false && x.Id == businessId);
+        //    if (business == null)
+        //    {
+        //        responseModel.Data = new DataModel { Data = "", Message = "" };
+        //        responseModel.ErrorMessage = "Business not found";
+        //        responseModel.StatusCode = 404;
+        //        return responseModel;
+        //    }
+        //    BusinessFollow follow = await _uow.BusinessFollowRepository.GetFirst(x => x.BusinessId == businessId && x.UserId == uid);
+        //    if (follow != null)
+        //    {
+        //        business.BusinessFollowCount--;
+        //        follow.IsDeleted = true;
+        //        await _uow.BusinessFollowRepository.Update(follow);
+        //        await _uow.BusinessRepository.Update(business);
+        //        responseModel.Data = new DataModel { Data = "", Message = "" };
+        //        responseModel.ErrorMessage = "Business unfollowed";
+        //        responseModel.StatusCode = 200;
+        //        return responseModel;
+        //    }
+        //    follow = new BusinessFollow()
+        //    {
+        //        BusinessId = businessId,
+        //        UserId = uid,
+        //        CreatedDate = DateTime.UtcNow,
+        //        IsDeleted = false,
+        //    };
+        //    await _uow.BusinessFollowRepository.Create(follow);
+        //    business.BusinessFollowCount++;
+        //    await _uow.BusinessRepository.Update(business);
+        //    responseModel.Data = new DataModel { Data = "", Message = "" };
+        //    responseModel.ErrorMessage = "Business followed";
+        //    responseModel.StatusCode = 200;
+        //    return responseModel;
+        //}
 
         public async Task<ResponseModel> AddReview(CreateReview_VM review, string uid)
         {
@@ -338,70 +344,6 @@ namespace Brandsome.BLL.Services
             return responseModel;
         }
 
-        public async Task<ResponseModel> CreatePost(CreatePost_VM post)
-        {
-            ResponseModel responseModel = new ResponseModel();
-            Post newPost = new Post()
-            {
-                CreatedDate = DateTime.UtcNow,
-                BusinessCityId = post.CityId,
-                BusinessServiceId = post.ServiceId,
-                Descrption = post.Description,
-                IsDeleted = false,
-                PostViewCount = 0,
-                PostLikeCount = 0,
-            };
-            newPost = await _uow.PostRepository.Create(newPost);
-            if (post.Media.Count > 0)
-            {
-                foreach (var item in post.Media)
-                {
-                    PostMedium media = new PostMedium();
-                    media.PostId = newPost.Id;
-                    bool isImage = Tools.CHeckIfImage(item);
-                    bool isVideo = Tools.CheckIfVideo(item);
-                    if (isImage)
-                    {
-                        media.PostTypeId = 1;
-                    }
-                    else if (isVideo)
-                    {
-                        media.PostTypeId = 2;
-                    }
-
-                    string NewFileName = await Helpers.SaveFile("wwwroot/Posts/Media", item);
-                    media.FilePath = NewFileName;
-                    await _uow.PostMediaRepository.Create(media);
-                }
-            }
-            responseModel.ErrorMessage = "";
-            responseModel.StatusCode = 201;
-            responseModel.Data = new DataModel { Data = "", Message = "Post created succesfully" };
-            return responseModel;
-
-        }
-
-        public async Task<ResponseModel> UpdatePost(string uid, CreatePost_VM post)
-        {
-            ResponseModel responseModel = new ResponseModel();
-            Post currPost = await _uow.PostRepository.GetFirst(x => x.Id == post.Id && x.IsDeleted == false && x.BusinessCity.Business.UserId == uid);
-            if (currPost == null)
-            {
-                responseModel.ErrorMessage = "Post not found";
-                responseModel.StatusCode = 404;
-                responseModel.Data = new DataModel { Data = "", Message = "" };
-                return responseModel;
-            }
-            currPost.Descrption = post.Description;
-            currPost.BusinessCityId = post.CityId;
-            currPost.BusinessServiceId = post.ServiceId;
-            await _uow.PostRepository.Update(currPost);
-            responseModel.ErrorMessage = "";
-            responseModel.StatusCode = 201;
-            responseModel.Data = new DataModel { Data = "", Message = "Post updated successfully" };
-            return responseModel;
-        }
-
         public async Task<ResponseModel> GetBusinessCities(int businessId, string uid)
         {
             ResponseModel responseModel = new ResponseModel();
@@ -448,6 +390,34 @@ namespace Brandsome.BLL.Services
             responseModel.Data = new DataModel { Data = "", Message = "Business succesfully deleted" };
             return responseModel;
         }
+
+        public async Task<ResponseModel> RegisterNewPhoneClick(string uid,int businessId)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            Business business = await _uow.BusinessRepository.GetAll(x => x.Id == businessId).FirstOrDefaultAsync();
+            if (business == null)
+            {
+                responseModel.ErrorMessage = "Business not found";
+                responseModel.StatusCode = 404;
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                return responseModel;
+            }
+            BusinessPhoneClick newClick = new BusinessPhoneClick()
+            {
+                BusinessId = businessId,
+                UserId = uid,
+                CreatedDate = DateTime.UtcNow,
+
+            };
+            await _uow.BusinessPhoneClickRepository.Create(newClick);
+            business.BusinessPhoneClickCount++;
+            await _uow.BusinessRepository.Update(business);
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = "", Message = "Phone click registered succesfully" };
+            return responseModel;
+        }
+
         //public async Task<ResponseModel> CreateBusiness()
     }
 }

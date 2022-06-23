@@ -34,6 +34,8 @@ namespace Brandsome.DAL
         private ISubcategoryRepository subcategoryRepository;
         private IServiceRepository serviceRepository;
         private ICityRepository cityRepository;
+        private IPostLikeRepository postLikeRepository;
+        private IBusinessPhoneClickRepository businessPhoneClickRepository;
 
         #endregion
 
@@ -52,6 +54,8 @@ namespace Brandsome.DAL
         public ISubcategoryRepository SubcategoryRepository => subcategoryRepository ?? new SubcategoryRepository(_context);
         public IServiceRepository ServiceRepository => serviceRepository ?? new ServiceRepository(_context);
         public ICityRepository CityRepository => cityRepository ?? new CityRepository(_context);
+        public IPostLikeRepository PostLikeRepository => postLikeRepository ?? new PostLikeRepository(_context);
+        public IBusinessPhoneClickRepository BusinessPhoneClickRepository => businessPhoneClickRepository ?? new BusinessPhoneClickRepository(_context);
         #endregion
 
 
