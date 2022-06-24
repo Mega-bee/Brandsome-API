@@ -21,10 +21,10 @@ namespace Brandsome.BLL.Services
         {
         }
 
-        public async Task<ResponseModel> GetBusinsses( List<int> services, string sortBy, HttpRequest request)
+        public async Task<ResponseModel> GetBusinsses(List<int> services, string sortBy, HttpRequest request)
         {
             ResponseModel responseModel = new ResponseModel();
-            List<Business_VM> businesses =await _uow.BusinessRepository.GetAll().Where(x => x.IsDeleted == false).Select(business => new Business_VM
+            List<Business_VM> businesses = await _uow.BusinessRepository.GetAll().Where(x => x.IsDeleted == false).Select(business => new Business_VM
             {
                 Id = business.Id,
                 Cities = business.BusinessCities.Where(bc => bc.IsDeleted == false).Select(bc => new BusinessCity_VM
@@ -32,7 +32,7 @@ namespace Brandsome.BLL.Services
                     Id = bc.Id,
                     Name = bc.City.Title
                 }).ToList(),
-                 Description = business.Description,
+                Description = business.Description,
                 Name = business.BusinessName ?? "",
                 Image = $"{request.Scheme}://{request.Host}/Images/{business.Image}",
                 PostCount = business.BusinessPostCount ?? 0,
@@ -49,19 +49,20 @@ namespace Brandsome.BLL.Services
 
             if (services != null)
             {
-                if(services.Count > 0)
+                if (services.Count > 0)
                 {
                     businesses = businesses.Where(x => x.Services.Any(s => services.Contains(s.Id))).ToList();
-                }  
-               
+                }
+
             }
 
             if (!string.IsNullOrEmpty(sortBy))
             {
-                if(sortBy == "A-Z")
+                if (sortBy == "A-Z")
                 {
-                    businesses = businesses.OrderBy(x=> x.Name).ToList();
-                } else
+                    businesses = businesses.OrderBy(x => x.Name).ToList();
+                }
+                else
                 {
                     var propertyInfo = typeof(Business_VM).GetProperty(sortBy);
                     businesses = businesses.OrderByDescending(x => propertyInfo.GetValue(x, null)).ToList();
@@ -97,7 +98,7 @@ namespace Brandsome.BLL.Services
                     Description = p.Descrption ?? "",
                     LikeCount = p.PostLikeCount ?? 0,
                     Id = p.Id,
-                    IsLiked = p.PostLikes.Where(pl => pl.UserId == uid && pl.IsDeleted == false).FirstOrDefault()!= null,
+                    IsLiked = p.PostLikes.Where(pl => pl.UserId == uid && pl.IsDeleted == false).FirstOrDefault() != null,
                     Type = p.BusinessService.Service.SubCategory.Category.Title + "/" + p.BusinessService.Service.SubCategory.Title + "/" + p.BusinessService.Service.Title,
                     City = p.BusinessCity.City.Title,
                     PostMedia = p.PostMedia.Select(pm => new PostMedia_VM
@@ -106,7 +107,7 @@ namespace Brandsome.BLL.Services
                         Url = $"{request.Scheme}://{request.Host}/posts/media/{pm.FilePath}",
                         MediaTypeId = pm.PostTypeId ?? 0,
                         MediaTypeName = pm.PostType.Title ?? "",
-                         
+
                     }).ToList(),
                     //Cities = p.busi
                 }).ToList(),
@@ -118,14 +119,14 @@ namespace Brandsome.BLL.Services
                     Name = br.User.UserName ?? "",
                     Image = $"{request.Scheme}://{request.Host}/Uploads/{br.User.Image}"
                 }).ToList(),
-                 Services = b.BusinessServices.Select(bs => new BusinessService_VM
-                 {
-                      Id=bs.Id,
-                       Name = bs.Service.Title ?? ""
-                 }).ToList(),
-                  IsUserBusiness = uid == b.UserId,
-                   Type = b.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Category.Title + "/" + b.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Title,
-                    ViewCount = b.BusinessViewCount ?? 0,
+                Services = b.BusinessServices.Select(bs => new BusinessService_VM
+                {
+                    Id = bs.Id,
+                    Name = bs.Service.Title ?? ""
+                }).ToList(),
+                IsUserBusiness = uid == b.UserId,
+                Type = b.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Category.Title + "/" + b.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Title,
+                ViewCount = b.BusinessViewCount ?? 0,
             }).FirstOrDefaultAsync();
             responseModel.Data = new DataModel { Data = business, Message = "" };
             responseModel.ErrorMessage = "";
@@ -208,9 +209,9 @@ namespace Brandsome.BLL.Services
                 CreatedDate = DateTime.UtcNow,
                 Description = business.BusinessDescription,
                 BusinessName = business.BusinessName,
-                 BusinessPhone = business.BusinessPhoneNumber,
+                BusinessPhone = business.BusinessPhoneNumber,
                 UserId = uid,
-                IsDeleted= false
+                IsDeleted = false
             };
             var file = business.ImageFile;
             if (file != null)
@@ -372,7 +373,7 @@ namespace Brandsome.BLL.Services
             return responseModel;
         }
 
-        public async Task<ResponseModel> DeleteBusiness(string uid,int businessId)
+        public async Task<ResponseModel> DeleteBusiness(string uid, int businessId)
         {
             ResponseModel responseModel = new ResponseModel();
             Business business = await _uow.BusinessRepository.GetAll(x => x.Id == businessId && x.UserId == uid && x.IsDeleted == false).FirstOrDefaultAsync();
@@ -391,7 +392,7 @@ namespace Brandsome.BLL.Services
             return responseModel;
         }
 
-        public async Task<ResponseModel> RegisterNewPhoneClick(string uid,int businessId)
+        public async Task<ResponseModel> RegisterNewPhoneClick(string uid, int businessId)
         {
             ResponseModel responseModel = new ResponseModel();
             Business business = await _uow.BusinessRepository.GetAll(x => x.Id == businessId).FirstOrDefaultAsync();
@@ -410,8 +411,6 @@ namespace Brandsome.BLL.Services
 
             };
             await _uow.BusinessPhoneClickRepository.Create(newClick);
-            business.BusinessPhoneClickCount++;
-            await _uow.BusinessRepository.Update(business);
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
             responseModel.Data = new DataModel { Data = "", Message = "Phone click registered succesfully" };
