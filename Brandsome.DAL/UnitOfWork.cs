@@ -38,6 +38,7 @@ namespace Brandsome.DAL
         private IBusinessPhoneClickRepository businessPhoneClickRepository;
         private IPostLikeLogRepository postLikeLogRepository;
         private IPostViewRepository postViewRepository;
+        private IBusinessFollowLogRepository businessFollowLogRepository;
 
         #endregion
 
@@ -60,6 +61,7 @@ namespace Brandsome.DAL
         public IBusinessPhoneClickRepository BusinessPhoneClickRepository => businessPhoneClickRepository ?? new BusinessPhoneClickRepository(_context);
         public IPostLikeLogRepository PostLikeLogRepository => postLikeLogRepository ?? new PostLikeLogRepository(_context);
         public IPostViewRepository PostViewRepository => postViewRepository ?? new PostViewRepository(_context);
+        public IBusinessFollowLogRepository BusinessFollowLogRepository => businessFollowLogRepository ?? new BusinessFollowLogRepository(_context);
         #endregion
 
 

@@ -13,7 +13,7 @@ namespace Brandsome.BLL.IServices
         Task<ResponseModel> DeleteBusinessService(string uid, int businessServiceId);
         Task<ResponseModel> GetBusinessServices(int businessId, string uid);
         Task<ResponseModel> GetBusinessCities(int businessId, string uid);
-        //Task<ResponseModel> FollowBusiness(string uid, int businessId);
+        Task<ResponseModel> FollowBusiness(string uid, int businessId, bool IsFollow);
         Task<ResponseModel> GetBusiness(string uid, int businessId, HttpRequest request);
         Task<ResponseModel> GetBusinsses(List<int> services, string sortBy, HttpRequest request);
         Task<ResponseModel> UpdateBusiness(CreateBusiness_VM business);

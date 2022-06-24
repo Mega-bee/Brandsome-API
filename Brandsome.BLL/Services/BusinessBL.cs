@@ -134,45 +134,46 @@ namespace Brandsome.BLL.Services
             return responseModel;
         }
 
-        //public async Task<ResponseModel> FollowBusiness(string uid, int businessId)
-        //{
+        public async Task<ResponseModel> FollowBusiness(string uid, int businessId,bool IsFollow)
+        {
 
-        //    ResponseModel responseModel = new ResponseModel();
-        //    Business business = await _uow.BusinessRepository.GetFirst(x => x.IsDeleted == false && x.Id == businessId);
-        //    if (business == null)
-        //    {
-        //        responseModel.Data = new DataModel { Data = "", Message = "" };
-        //        responseModel.ErrorMessage = "Business not found";
-        //        responseModel.StatusCode = 404;
-        //        return responseModel;
-        //    }
-        //    BusinessFollow follow = await _uow.BusinessFollowRepository.GetFirst(x => x.BusinessId == businessId && x.UserId == uid);
-        //    if (follow != null)
-        //    {
-        //        business.BusinessFollowCount--;
-        //        follow.IsDeleted = true;
-        //        await _uow.BusinessFollowRepository.Update(follow);
-        //        await _uow.BusinessRepository.Update(business);
-        //        responseModel.Data = new DataModel { Data = "", Message = "" };
-        //        responseModel.ErrorMessage = "Business unfollowed";
-        //        responseModel.StatusCode = 200;
-        //        return responseModel;
-        //    }
-        //    follow = new BusinessFollow()
-        //    {
-        //        BusinessId = businessId,
-        //        UserId = uid,
-        //        CreatedDate = DateTime.UtcNow,
-        //        IsDeleted = false,
-        //    };
-        //    await _uow.BusinessFollowRepository.Create(follow);
-        //    business.BusinessFollowCount++;
-        //    await _uow.BusinessRepository.Update(business);
-        //    responseModel.Data = new DataModel { Data = "", Message = "" };
-        //    responseModel.ErrorMessage = "Business followed";
-        //    responseModel.StatusCode = 200;
-        //    return responseModel;
-        //}
+            ResponseModel responseModel = new ResponseModel();
+            Business business = await _uow.BusinessRepository.GetFirst(x => x.IsDeleted == false && x.Id == businessId);
+            if (business == null)
+            {
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                responseModel.ErrorMessage = "Business not found";
+                responseModel.StatusCode = 404;
+                return responseModel;
+            }
+
+            BusinessFollowLog followLog = new BusinessFollowLog();
+            followLog.BusinessId = businessId;
+            followLog.UserId = uid;
+            followLog.IsFollow = IsFollow;
+            followLog.CreatedDate = DateTime.UtcNow;
+            
+            await _uow.BusinessFollowLogRepository.Create(followLog);
+
+            BusinessFollow follow  = await _uow.BusinessFollowRepository.GetFirst(f=>f.BusinessId == businessId && f.UserId == uid && f.IsDeleted == false);
+            if (follow == null )
+            {
+                follow.IsDeleted = false;
+                follow.CreatedDate = DateTime.UtcNow;
+                follow.UserId = uid;
+                follow.BusinessId = businessId; 
+            }
+            else
+            {
+                await _uow.BusinessFollowRepository.Delete(follow.Id);
+            }
+            
+            
+            responseModel.Data = new DataModel { Data = "", Message = $"Business {(IsFollow ? "followed" : "unfollowed")} successfully" };
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            return responseModel;
+        }
 
         public async Task<ResponseModel> AddReview(CreateReview_VM review, string uid)
         {
@@ -408,6 +409,7 @@ namespace Brandsome.BLL.Services
                 BusinessId = businessId,
                 UserId = uid,
                 CreatedDate = DateTime.UtcNow,
+                 
 
             };
             await _uow.BusinessPhoneClickRepository.Create(newClick);
@@ -417,6 +419,5 @@ namespace Brandsome.BLL.Services
             return responseModel;
         }
 
-        //public async Task<ResponseModel> CreateBusiness()
     }
 }

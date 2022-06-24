@@ -43,13 +43,21 @@ namespace Brandsome.API.Controllers
         }
 
 
-        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
-        //[HttpPost("{businessId}")]
-        //public async Task<IActionResult> FollowBusiness([FromRoute] int businessId)
-        //{
-        //    string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-        //    return Ok(await _Bbl.FollowBusiness(uid, businessId));
-        //}
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [HttpPost("{businessId}")]
+        public async Task<IActionResult> FollowBusiness([FromRoute] int businessId , [FromForm] bool IsFollow)
+        {
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _Bbl.FollowBusiness(uid, businessId , IsFollow));
+        }
+        
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [HttpPost("{businessId}")]
+        public async Task<IActionResult> RegisterNewPhoneClick([FromRoute] int businessId)
+        {
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _Bbl.RegisterNewPhoneClick(uid, businessId ));
+        }
 
 
         [HttpPost]

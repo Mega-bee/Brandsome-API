@@ -136,7 +136,7 @@ namespace Brandsome.BLL.Services
             }
             else
             {
-                await _uow.PostLikeRepository.Delete(postId);
+                await _uow.PostLikeRepository.Delete(postLike.Id);
             }
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
