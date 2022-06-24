@@ -26,6 +26,7 @@ namespace Brandsome.DAL
         IPostLikeRepository PostLikeRepository { get; }
         IBusinessPhoneClickRepository BusinessPhoneClickRepository { get; }
         IPostLikeLogRepository PostLikeLogRepository { get; }
+        IPostViewRepository PostViewRepository { get; }
         void Save();
     }
 }
