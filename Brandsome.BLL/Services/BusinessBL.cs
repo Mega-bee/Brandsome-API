@@ -108,6 +108,7 @@ namespace Brandsome.BLL.Services
                         MediaTypeName = pm.PostType.Title ?? "",
                          
                     }).ToList(),
+                     ProfileImage = $"{request.Scheme}://{request.Host}/Images/{p.BusinessCity.Business.Image}"
                     //Cities = p.busi
                 }).ToList(),
                 ReviewCount = b.BusinessReviewCount ?? 0,
@@ -116,7 +117,8 @@ namespace Brandsome.BLL.Services
                     Description = br.Description ?? "",
                     Id = br.Id,
                     Name = br.User.UserName ?? "",
-                    Image = $"{request.Scheme}://{request.Host}/Uploads/{br.User.Image}"
+                    Image = $"{request.Scheme}://{request.Host}/Uploads/{br.User.Image}",
+                     CreatedDate = br.CreatedDate
                 }).ToList(),
                  Services = b.BusinessServices.Select(bs => new BusinessService_VM
                  {
@@ -133,45 +135,43 @@ namespace Brandsome.BLL.Services
             return responseModel;
         }
 
-        //public async Task<ResponseModel> FollowBusiness(string uid, int businessId)
-        //{
+        public async Task<ResponseModel> FollowBusiness(string uid, int businessId)
+        {
 
-        //    ResponseModel responseModel = new ResponseModel();
-        //    Business business = await _uow.BusinessRepository.GetFirst(x => x.IsDeleted == false && x.Id == businessId);
-        //    if (business == null)
-        //    {
-        //        responseModel.Data = new DataModel { Data = "", Message = "" };
-        //        responseModel.ErrorMessage = "Business not found";
-        //        responseModel.StatusCode = 404;
-        //        return responseModel;
-        //    }
-        //    BusinessFollow follow = await _uow.BusinessFollowRepository.GetFirst(x => x.BusinessId == businessId && x.UserId == uid);
-        //    if (follow != null)
-        //    {
-        //        business.BusinessFollowCount--;
-        //        follow.IsDeleted = true;
-        //        await _uow.BusinessFollowRepository.Update(follow);
-        //        await _uow.BusinessRepository.Update(business);
-        //        responseModel.Data = new DataModel { Data = "", Message = "" };
-        //        responseModel.ErrorMessage = "Business unfollowed";
-        //        responseModel.StatusCode = 200;
-        //        return responseModel;
-        //    }
-        //    follow = new BusinessFollow()
-        //    {
-        //        BusinessId = businessId,
-        //        UserId = uid,
-        //        CreatedDate = DateTime.UtcNow,
-        //        IsDeleted = false,
-        //    };
-        //    await _uow.BusinessFollowRepository.Create(follow);
-        //    business.BusinessFollowCount++;
-        //    await _uow.BusinessRepository.Update(business);
-        //    responseModel.Data = new DataModel { Data = "", Message = "" };
-        //    responseModel.ErrorMessage = "Business followed";
-        //    responseModel.StatusCode = 200;
-        //    return responseModel;
-        //}
+            ResponseModel responseModel = new ResponseModel();
+            Business business = await _uow.BusinessRepository.GetFirst(x => x.IsDeleted == false && x.Id == businessId);
+            if (business == null)
+            {
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                responseModel.ErrorMessage = "Business not found";
+                responseModel.StatusCode = 404;
+                return responseModel;
+            }
+            BusinessFollow follow = await _uow.BusinessFollowRepository.GetFirst(x => x.BusinessId == businessId && x.UserId == uid);
+            if (follow != null)
+            {
+               
+                follow.IsDeleted = true;
+                await _uow.BusinessFollowRepository.Update(follow);
+                await _uow.BusinessRepository.Update(business);
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                responseModel.ErrorMessage = "Business unfollowed";
+                responseModel.StatusCode = 200;
+                return responseModel;
+            }
+            follow = new BusinessFollow()
+            {
+                BusinessId = businessId,
+                UserId = uid,
+                CreatedDate = DateTime.UtcNow,
+                IsDeleted = false,
+            };
+            await _uow.BusinessFollowRepository.Create(follow);
+            responseModel.Data = new DataModel { Data = "", Message = "" };
+            responseModel.ErrorMessage = "Business followed";
+            responseModel.StatusCode = 200;
+            return responseModel;
+        }
 
         public async Task<ResponseModel> AddReview(CreateReview_VM review, string uid)
         {

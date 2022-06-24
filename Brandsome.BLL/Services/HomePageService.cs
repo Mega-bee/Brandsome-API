@@ -49,6 +49,7 @@ namespace Brandsome.BLL.Services
                 Description = p.Descrption ?? "",
                 LikeCount = p.PostLikeCount ?? 0,
                 Id = p.Id,
+                ProfileImage = $"{request.Scheme}://{request.Host}/Images/{p.BusinessCity.Business.Image}",
                 IsLiked = p.PostLikes.Where(pl => pl.UserId == uid && pl.IsDeleted == false).FirstOrDefault() != null,
                 Type = p.BusinessService.Service.SubCategory.Category.Title + "/" + p.BusinessService.Service.SubCategory.Title + "/" + p.BusinessService.Service.Title,
                 City = p.BusinessCity.City.Title,

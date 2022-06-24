@@ -11,7 +11,7 @@ namespace Brandsome.BLL.ViewModels
     public partial class Post_VM
     {
         public int Id { get; set; }
-        //public string Image { get; set; }
+        public string ProfileImage { get; set; }
         public string Name { get; set; }
         public List<PostMedia_VM> PostMedia { get; set; }
         public string Description { get; set; }
