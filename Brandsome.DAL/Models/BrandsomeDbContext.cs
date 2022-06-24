@@ -29,6 +29,7 @@ namespace Brandsome.DAL.Models
         public virtual DbSet<Business> Businesses { get; set; }
         public virtual DbSet<BusinessCity> BusinessCities { get; set; }
         public virtual DbSet<BusinessFollow> BusinessFollows { get; set; }
+        public virtual DbSet<BusinessFollowLog> BusinessFollowLogs { get; set; }
         public virtual DbSet<BusinessPhoneClick> BusinessPhoneClicks { get; set; }
         public virtual DbSet<BusinessReview> BusinessReviews { get; set; }
         public virtual DbSet<BusinessService> BusinessServices { get; set; }
@@ -42,12 +43,12 @@ namespace Brandsome.DAL.Models
         public virtual DbSet<Interest> Interests { get; set; }
         public virtual DbSet<Post> Posts { get; set; }
         public virtual DbSet<PostLike> PostLikes { get; set; }
+        public virtual DbSet<PostLikeLog> PostLikeLogs { get; set; }
         public virtual DbSet<PostMedium> PostMedia { get; set; }
         public virtual DbSet<PostType> PostTypes { get; set; }
         public virtual DbSet<PostView> PostViews { get; set; }
         public virtual DbSet<Service> Services { get; set; }
         public virtual DbSet<SubCategory> SubCategories { get; set; }
-
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -139,6 +140,21 @@ namespace Brandsome.DAL.Models
                     .WithMany(p => p.BusinessFollows)
                     .HasForeignKey(d => d.UserId)
                     .HasConstraintName("FK_BusinessFollow_AspNetUsers");
+            });
+
+            modelBuilder.Entity<BusinessFollowLog>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.HasOne(d => d.Business)
+                    .WithMany(p => p.BusinessFollowLogs)
+                    .HasForeignKey(d => d.BusinessId)
+                    .HasConstraintName("FK_BusinessFollowLog_Business");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.BusinessFollowLogs)
+                    .HasForeignKey(d => d.UserId)
+                    .HasConstraintName("FK_BusinessFollowLog_AspNetUsers");
             });
 
             modelBuilder.Entity<BusinessPhoneClick>(entity =>
@@ -251,6 +267,19 @@ namespace Brandsome.DAL.Models
                     .WithMany(p => p.PostLikes)
                     .HasForeignKey(d => d.UserId)
                     .HasConstraintName("FK_PostLike_AspNetUsers");
+            });
+
+            modelBuilder.Entity<PostLikeLog>(entity =>
+            {
+                entity.HasOne(d => d.Post)
+                    .WithMany(p => p.PostLikeLogs)
+                    .HasForeignKey(d => d.PostId)
+                    .HasConstraintName("FK_PostLikeLog_Post");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.PostLikeLogs)
+                    .HasForeignKey(d => d.UserId)
+                    .HasConstraintName("FK_PostLikeLog_AspNetUsers");
             });
 
             modelBuilder.Entity<PostMedium>(entity =>

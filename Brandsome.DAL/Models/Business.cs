@@ -12,6 +12,7 @@ namespace Brandsome.DAL.Models
         public Business()
         {
             BusinessCities = new HashSet<BusinessCity>();
+            BusinessFollowLogs = new HashSet<BusinessFollowLog>();
             BusinessFollows = new HashSet<BusinessFollow>();
             BusinessPhoneClicks = new HashSet<BusinessPhoneClick>();
             BusinessReviews = new HashSet<BusinessReview>();
@@ -43,6 +44,8 @@ namespace Brandsome.DAL.Models
         public virtual AspNetUser User { get; set; }
         [InverseProperty("Business")]
         public virtual ICollection<BusinessCity> BusinessCities { get; set; }
+        [InverseProperty("Business")]
+        public virtual ICollection<BusinessFollowLog> BusinessFollowLogs { get; set; }
         [InverseProperty("Business")]
         public virtual ICollection<BusinessFollow> BusinessFollows { get; set; }
         [InverseProperty("Business")]

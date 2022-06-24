@@ -97,7 +97,7 @@ namespace Brandsome.BLL.Services
                     Description = p.Descrption ?? "",
                     LikeCount = p.PostLikeCount ?? 0,
                     Id = p.Id,
-                    IsLiked = p.PostLikes.Where(pl => pl.UserId == uid).OrderByDescending(pl=> pl.CreatedDate.Value).FirstOrDefault()!= null ? p.PostLikes.Where(pl => pl.UserId == uid).OrderByDescending(pl => pl.CreatedDate.Value).FirstOrDefault().IsLike : false,
+                    IsLiked = p.PostLikes.Where(pl => pl.UserId == uid && pl.IsDeleted == false).FirstOrDefault()!= null,
                     Type = p.BusinessService.Service.SubCategory.Category.Title + "/" + p.BusinessService.Service.SubCategory.Title + "/" + p.BusinessService.Service.Title,
                     City = p.BusinessCity.City.Title,
                     PostMedia = p.PostMedia.Select(pm => new PostMedia_VM

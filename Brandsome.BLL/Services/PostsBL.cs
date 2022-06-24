@@ -114,27 +114,14 @@ namespace Brandsome.BLL.Services
                 responseModel.Data = new DataModel { Data = "", Message = "" };
                 return responseModel;
             }
-            PostLike postLike = new PostLike()
+            PostLikeLog postLike = new PostLikeLog()
             {
                 CreatedDate = DateTime.UtcNow,
                 IsLike = isLike,
                 PostId = postId,
                 UserId = uid
             };
-            await _uow.PostLikeRepository.Create(postLike);
-            //if(!isLike)
-            //{
-            //    if(currPost.PostLikeCount >0)
-            //    {
-            //        currPost.PostLikeCount--;
-            //    }
-
-            //} else
-            //{
-            //    currPost.PostLikeCount++;
-            //}
-
-            //await _uow.PostRepository.Update(currPost);
+            await _uow.PostLikeLogRepository.Create(postLike);
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 201;
             responseModel.Data = new DataModel { Data = "", Message = $"Post {(isLike ? "liked" : "dislike")} successfully" };

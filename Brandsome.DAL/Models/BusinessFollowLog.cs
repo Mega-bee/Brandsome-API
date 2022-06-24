@@ -6,23 +6,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Brandsome.DAL.Models
 {
-    [Table("PostLike")]
-    public partial class PostLike
+    [Table("BusinessFollowLog")]
+    public partial class BusinessFollowLog
     {
         [Key]
         public int Id { get; set; }
-        public int? PostId { get; set; }
+        public int? BusinessId { get; set; }
         [StringLength(450)]
         public string UserId { get; set; }
+        public bool? IsFollow { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime? CreatedDate { get; set; }
-        public bool? IsDeleted { get; set; }
 
-        [ForeignKey("PostId")]
-        [InverseProperty("PostLikes")]
-        public virtual Post Post { get; set; }
+        [ForeignKey("BusinessId")]
+        [InverseProperty("BusinessFollowLogs")]
+        public virtual Business Business { get; set; }
         [ForeignKey("UserId")]
-        [InverseProperty("PostLikes")]
+        [InverseProperty("BusinessFollowLogs")]
         public virtual AspNetUser User { get; set; }
     }
 }
