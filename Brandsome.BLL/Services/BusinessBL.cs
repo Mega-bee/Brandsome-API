@@ -17,6 +17,7 @@ namespace Brandsome.BLL.Services
 {
     public class BusinessBL : BaseBO, IBusinessBL
     {
+
         public BusinessBL(IUnitOfWork unit, IMapper mapper, NotificationHelper notificationHelper) : base(unit, mapper, notificationHelper)
         {
         }

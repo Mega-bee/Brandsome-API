@@ -107,6 +107,7 @@ namespace Brandsome.BLL.Services
             ResponseModel responseModel = new ResponseModel();
 
             Post currPost = await _uow.PostRepository.GetFirst(p => p.Id == postId && p.BusinessCity.Business.UserId == uid && p.IsDeleted == false);
+            PostLike postLike = null;
             if (currPost == null)
             {
                 responseModel.ErrorMessage = "Post not found";
@@ -123,16 +124,17 @@ namespace Brandsome.BLL.Services
             };
             await _uow.PostLikeLogRepository.Create(postLikeLog);
 
-            PostLike postLike = await _uow.PostLikeRepository.GetFirst(p => p.PostId == postId && p.IsDeleted == false);
+             postLike = await _uow.PostLikeRepository.GetFirst(p => p.PostId == postId && p.IsDeleted == false);
             
-            PostLike newpostLike = new PostLike();
 
             if (postLike == null)
             {
-                newpostLike.PostId = postId;
-                newpostLike.IsDeleted = false;
-                newpostLike.UserId = uid;
-                newpostLike.CreatedDate= DateTime.UtcNow;
+                 postLike = new PostLike();
+                postLike.PostId = postId;
+                postLike.IsDeleted = false;
+                postLike.UserId = uid;
+                postLike.CreatedDate= DateTime.UtcNow;
+                await _uow.PostLikeRepository.Create(postLike); 
             }
             else
             {
@@ -140,7 +142,7 @@ namespace Brandsome.BLL.Services
             }
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
-            responseModel.Data = new DataModel { Data = "", Message = $"Post {(isLike ? "liked" : "dislike")} successfully" };
+            responseModel.Data = new DataModel { Data = "", Message = $"Post {(isLike ? "liked" : "disliked")} successfully" };
             return responseModel;
         }
     }
