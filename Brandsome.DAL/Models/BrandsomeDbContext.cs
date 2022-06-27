@@ -50,7 +50,7 @@ namespace Brandsome.DAL.Models
         public virtual DbSet<Service> Services { get; set; }
         public virtual DbSet<SubCategory> SubCategories { get; set; }
 
-
+ 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AspNetUser>(entity =>
@@ -144,8 +144,6 @@ namespace Brandsome.DAL.Models
 
             modelBuilder.Entity<BusinessFollowLog>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.HasOne(d => d.Business)
                     .WithMany(p => p.BusinessFollowLogs)
                     .HasForeignKey(d => d.BusinessId)
