@@ -244,10 +244,10 @@ namespace Brandsome.BLL.Services
                     Id = b.Id,
                     Name = b.BusinessName,
                 }).ToList(),
-                 BusinessesCount = x.Businesses.Count(),
+                 BusinessesCount = x.Businesses.Where(b=> b.IsDeleted == false).Count(),
                   Name = x.UserName,
-                   //FollowingCount = x.BusinessFollows.Count(),
-                    ReviewCount = x.BusinessReviews.Where(x=> x.IsDeleted == false).Count(),
+                FollowingCount = x.BusinessFollows.Count(),
+                ReviewCount = x.BusinessReviews.Where(x=> x.IsDeleted == false).Count(),
                 ImageUrl = $"{request.Scheme}://{request.Host}/Images/{x.Image.Trim()}".Trim(),
             }).FirstOrDefaultAsync();
             responseModel.ErrorMessage = "";

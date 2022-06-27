@@ -415,7 +415,7 @@ namespace Brandsome.BLL.Services
                 BusinessId = businessId,
                 UserId = uid,
                 CreatedDate = DateTime.UtcNow,
-                 
+                  
 
             };
             await _uow.BusinessPhoneClickRepository.Create(newClick);
@@ -425,5 +425,30 @@ namespace Brandsome.BLL.Services
             return responseModel;
         }
 
+        //public async Task<ResponseModel> RegisterNewPhoneClick(string uid, int businessId,string)
+        //{
+        //    ResponseModel responseModel = new ResponseModel();
+        //    Business business = await _uow.BusinessRepository.GetAll(x => x.Id == businessId).FirstOrDefaultAsync();
+        //    if (business == null)
+        //    {
+        //        responseModel.ErrorMessage = "Business not found";
+        //        responseModel.StatusCode = 404;
+        //        responseModel.Data = new DataModel { Data = "", Message = "" };
+        //        return responseModel;
+        //    }
+        //    BusinessPhoneClick newClick = new BusinessPhoneClick()
+        //    {
+        //        BusinessId = businessId,
+        //        UserId = uid,
+        //        CreatedDate = DateTime.UtcNow,
+
+
+        //    };
+        //    await _uow.BusinessPhoneClickRepository.Create(newClick);
+        //    responseModel.ErrorMessage = "";
+        //    responseModel.StatusCode = 200;
+        //    responseModel.Data = new DataModel { Data = "", Message = "Phone click registered succesfully" };
+        //    return responseModel;
+        //}
     }
 }

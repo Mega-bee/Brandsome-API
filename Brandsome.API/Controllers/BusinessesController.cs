@@ -44,7 +44,6 @@ namespace Brandsome.API.Controllers
         }
 
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPost("{businessId}")]
         public async Task<IActionResult> FollowBusiness([FromRoute] int businessId , [FromForm] bool IsFollow)
         {
@@ -52,7 +51,6 @@ namespace Brandsome.API.Controllers
             return Ok(await _Bbl.FollowBusiness(uid, businessId , IsFollow));
         }
         
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPost("{businessId}")]
         public async Task<IActionResult> RegisterNewPhoneClick([FromRoute] int businessId)
         {
