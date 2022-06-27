@@ -259,7 +259,7 @@ namespace Brandsome.BLL.Services
         public async Task<ResponseModel> GetFollowedBusinesses(string uid, HttpRequest request)
         {
             ResponseModel responseModel = new ResponseModel();
-            List<FollowedBusiness_VM> businesses = await _uow.BusinessFollowRepository.GetAll(x => x.UserId == uid).Select(bf => new FollowedBusiness_VM
+            List<FollowedBusiness_VM> businesses = await _uow.BusinessFollowRepository.GetAll(x => x.UserId == uid && x.IsDeleted == false).Select(bf => new FollowedBusiness_VM
             {
                 Id = bf.Id,
                 Image = $"{request.Scheme}://{request.Host}/Uploads/{bf.Business.Image}",
