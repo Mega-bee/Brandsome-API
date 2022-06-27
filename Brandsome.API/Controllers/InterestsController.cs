@@ -16,25 +16,27 @@ namespace Brandsome.API.Controllers
             _interestsBL = interestsBL;
         }
 
-        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
             return Ok(await _interestsBL.GetCategories());
         }
-
-        [AllowAnonymous]
         [HttpGet("{categoryId}")]
         public async Task<IActionResult> GetSubcategories([FromRoute] int categoryId)
         {
             return Ok(await _interestsBL.GetSubCategories(categoryId));
         }
 
-        [AllowAnonymous]
         [HttpGet("{subcategoryId}")]
         public async Task<IActionResult> GetServices([FromRoute] int subcategoryId)
         {
             return Ok(await _interestsBL.GetServices(subcategoryId));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSearchCategories()
+        {
+            return Ok(await _interestsBL.GetSearchCategories());
         }
     }
 }

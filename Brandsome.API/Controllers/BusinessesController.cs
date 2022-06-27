@@ -20,6 +20,7 @@ namespace Brandsome.API.Controllers
             _Bbl = bBL;
         }
 
+  
         [AllowAnonymous]
         [HttpGet]
         public async Task <IActionResult> GetBusinesses([FromQuery] string sortBy, [FromQuery] List<int> services)
