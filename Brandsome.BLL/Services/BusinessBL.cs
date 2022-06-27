@@ -141,6 +141,7 @@ namespace Brandsome.BLL.Services
         {
 
             ResponseModel responseModel = new ResponseModel();
+            BusinessFollow follow = null;
             Business business = await _uow.BusinessRepository.GetFirst(x => x.IsDeleted == false && x.Id == businessId);
             if (business == null)
             {
@@ -158,13 +159,15 @@ namespace Brandsome.BLL.Services
             
             await _uow.BusinessFollowLogRepository.Create(followLog);
 
-            BusinessFollow follow  = await _uow.BusinessFollowRepository.GetFirst(f=>f.BusinessId == businessId && f.UserId == uid && f.IsDeleted == false);
+             follow  = await _uow.BusinessFollowRepository.GetFirst(f=>f.BusinessId == businessId && f.UserId == uid && f.IsDeleted == false);
             if (follow == null )
             {
+                follow = new BusinessFollow();
                 follow.IsDeleted = false;
                 follow.CreatedDate = DateTime.UtcNow;
                 follow.UserId = uid;
                 follow.BusinessId = businessId; 
+                await _uow.BusinessFollowRepository.Create(follow);
             }
             else
             {
