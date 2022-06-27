@@ -295,7 +295,32 @@ namespace Brandsome.BLL.Services
             return responseModel;
         }
 
+        public async Task<ResponseModel> RefreshFcmToken(string uid,string token)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            ApplicationUser user = await _userManager.FindByIdAsync(uid);
+            if(user == null)
+            {
+                responseModel.ErrorMessage = "User not found";
+                responseModel.StatusCode = 404;
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                return responseModel;
+            }
+            user.FcmToken = token;
+            var res =await _userManager.UpdateAsync(user);
+            if(!res.Succeeded)
+            {
+                responseModel.ErrorMessage = "Failed to refresh fcm token";
+                responseModel.StatusCode = 400;
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                return responseModel;
+            }
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = "", Message = "Fcm token refreshed succesfully" };
+            return responseModel;
 
+        }
         //        public async Task<ResponseModel> EmailSignIn(EmailSignIn_VM model)
         //        {
         //            ResponseModel responseModel = new ResponseModel();
