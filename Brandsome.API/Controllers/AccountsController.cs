@@ -63,13 +63,16 @@ namespace Brandsome.API.Controllers
             return Ok(await _auth.GetFollowedBusinesses(uid,Request));
         }
 
-        [HttpGet]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
-        public async Task<IActionResult> GetProfile()
+        [HttpPut]
+
+        public async Task<IActionResult> RefreshFcmToken([FromForm] string token)
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            return Ok(await _auth.GetProfile(uid, Request));
+            return Ok(await _auth.RefreshFcmToken(uid, token));
         }
+
+
 
     }
 

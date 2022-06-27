@@ -15,6 +15,7 @@ namespace Brandsome.BLL.IServices
         Task<ResponseModel> GetProfile(string uid, HttpRequest request);
 
         Task<ResponseModel> ResendOtp(string phoneNumber);
+        Task<ResponseModel> RefreshFcmToken(string uid, string token);
 
     }
 }
