@@ -74,6 +74,29 @@ namespace Brandsome.BLL.Utilities
 
         }
 
+        public IEnumerable<Post_VM> GetPostVM(IEnumerable<Post> query,HttpRequest request,string uid)
+        {
+            return query.Select<Post, Post_VM>(p => new Post_VM
+            {
+                Name = p.BusinessCity.Business.BusinessName ?? "",
+                Description = p.Descrption ?? "",
+                LikeCount = p.PostLikeCount ?? 0,
+                Id = p.Id,
+                IsLiked = p.PostLikes.Where(pl => pl.UserId == uid && pl.IsDeleted == false).FirstOrDefault() != null,
+                Type = p.BusinessService.Service.SubCategory.Category.Title + "/" + p.BusinessService.Service.SubCategory.Title + "/" + p.BusinessService.Service.Title,
+                City = p.BusinessCity.City.Title,
+                PostMedia = p.PostMedia.Select(pm => new PostMedia_VM
+                {
+                    Id = pm.Id,
+                    Url = $"{request.Scheme}://{request.Host}/posts/media/{pm.FilePath}",
+                    MediaTypeId = pm.PostTypeId ?? 0,
+                    MediaTypeName = pm.PostType.Title ?? "",
+
+                }).ToList(),
+                ProfileImage = $"{request.Scheme}://{request.Host}/Images/{p.BusinessCity.Business.Image}"
+            });
+        } 
+
     }
 }
 

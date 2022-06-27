@@ -54,7 +54,7 @@ namespace Brandsome.BLL
             _services.AddScoped<IGenericRepos<PostView>, GenericRepos<PostView>>();
             _services.AddScoped<IGenericRepos<Device>, GenericRepos<Device>>();
             _services.AddScoped<NotificationHelper>();
-            _services.AddScoped<Converters>();
+            _services.AddScoped<IConverters,Converters>();
             _services.AddScoped<ValidationFilterAttribute>();
 
             var configurationMapper = new MapperConfiguration(option =>
