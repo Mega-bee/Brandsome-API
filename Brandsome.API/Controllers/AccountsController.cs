@@ -48,6 +48,14 @@ namespace Brandsome.API.Controllers
         }
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [HttpGet]
+        public async Task<IActionResult> GetProfile()
+        {
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _auth.GetProfile(uid, Request));
+        }
+
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPut]
         public async Task<IActionResult> UpdateProfile([FromForm] CompleteProfile_VM profile)
         {
@@ -65,7 +73,6 @@ namespace Brandsome.API.Controllers
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPut]
-
         public async Task<IActionResult> RefreshFcmToken([FromForm] string token)
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
