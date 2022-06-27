@@ -4,6 +4,8 @@ using Brandsome.BLL.Utilities;
 using Brandsome.BLL.ViewModels;
 using Brandsome.DAL;
 using Brandsome.DAL.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -143,6 +145,33 @@ namespace Brandsome.BLL.Services
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
             responseModel.Data = new DataModel { Data = "", Message = $"Post {(isLike ? "liked" : "disliked")} successfully" };
+            return responseModel;
+        }  
+
+        public async Task<ResponseModel> LikeList(string uid,int postId, HttpRequest request)
+        {
+            ResponseModel responseModel = new ResponseModel();
+
+            Post currPost = await _uow.PostRepository.GetFirst(p => p.Id == postId && p.BusinessCity.Business.UserId == uid && p.IsDeleted == false);
+            List<PostLike_VM> postLike = null;
+            if (currPost == null)
+            {
+                responseModel.ErrorMessage = "Post not found";
+                responseModel.StatusCode = 404;
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                return responseModel;
+            }
+
+            postLike = await _uow.PostLikeRepository.GetAll(pl => pl.PostId == postId && pl.IsDeleted == false).Select(x => new PostLike_VM
+            {
+                Id = x.Id,
+                 Name=x.User.UserName,
+                  Image= $"{request.Scheme}://{request.Host}/Images/{x.User.Image}"
+            }).ToListAsync();
+           
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = postLike, Message = "" };
             return responseModel;
         }
     }

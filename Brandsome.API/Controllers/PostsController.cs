@@ -43,6 +43,13 @@ namespace Brandsome.API.Controllers
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             return Ok(await _postsBL.LikePost(uid,postId,isLike));
+        } 
+        
+        [HttpGet("{postId}")]
+        public async Task<IActionResult> LikeList([FromRoute] int postId)
+        {
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _postsBL.LikeList(uid,postId,Request));
         }
 
 
