@@ -108,7 +108,7 @@ namespace Brandsome.BLL.Services
         {
             ResponseModel responseModel = new ResponseModel();
 
-            Post currPost = await _uow.PostRepository.GetFirst(p => p.Id == postId && p.BusinessCity.Business.UserId == uid && p.IsDeleted == false);
+            Post currPost = await _uow.PostRepository.GetFirst(p => p.Id == postId && p.IsDeleted == false);
             PostLike postLike = null;
             if (currPost == null)
             {
@@ -126,7 +126,7 @@ namespace Brandsome.BLL.Services
             };
             await _uow.PostLikeLogRepository.Create(postLikeLog);
 
-             postLike = await _uow.PostLikeRepository.GetFirst(p => p.PostId == postId && p.IsDeleted == false);
+             postLike = await _uow.PostLikeRepository.GetFirst(p => p.PostId == postId && p.IsDeleted == false && p.UserId == uid);
             
 
             if (postLike == null)
