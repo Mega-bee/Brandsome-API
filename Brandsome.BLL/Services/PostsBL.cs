@@ -152,7 +152,7 @@ namespace Brandsome.BLL.Services
         {
             ResponseModel responseModel = new ResponseModel();
 
-            Post currPost = await _uow.PostRepository.GetFirst(p => p.Id == postId && p.BusinessCity.Business.UserId == uid && p.IsDeleted == false);
+            Post currPost = await _uow.PostRepository.GetFirst(p => p.Id == postId /*&& p.BusinessCity.Business.UserId == uid */&& p.IsDeleted == false);
             List<PostLike_VM> postLike = null;
             if (currPost == null)
             {
