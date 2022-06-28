@@ -166,7 +166,7 @@ namespace Brandsome.BLL.Services
             {
                 Id = x.Id,
                  Name=x.User.UserName,
-                  Image= $"{request.Scheme}://{request.Host}/Images/{x.User.Image}"
+                  Image= $"{request.Scheme}://{request.Host}/Images/{x.User.Image}".Trim()
             }).ToListAsync();
            
             responseModel.ErrorMessage = "";
