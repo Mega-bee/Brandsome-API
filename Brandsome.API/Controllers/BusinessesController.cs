@@ -50,11 +50,18 @@ namespace Brandsome.API.Controllers
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             return Ok(await _Bbl.FollowBusiness(uid, businessId , IsFollow));
         }
-        
+
+        [AllowAnonymous]
         [HttpPost("{businessId}")]
+      
         public async Task<IActionResult> RegisterNewPhoneClick([FromRoute] int businessId)
         {
-            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            string uid = null;
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity.IsAuthenticated)
+            {
+                uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            }
             return Ok(await _Bbl.RegisterNewPhoneClick(uid, businessId ));
         }
 

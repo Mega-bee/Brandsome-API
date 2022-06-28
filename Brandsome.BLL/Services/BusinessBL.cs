@@ -415,8 +415,6 @@ namespace Brandsome.BLL.Services
                 BusinessId = businessId,
                 UserId = uid,
                 CreatedDate = DateTime.UtcNow,
-                  
-
             };
             await _uow.BusinessPhoneClickRepository.Create(newClick);
             responseModel.ErrorMessage = "";
