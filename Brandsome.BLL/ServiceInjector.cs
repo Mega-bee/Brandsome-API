@@ -35,6 +35,7 @@ namespace Brandsome.BLL
             _services.AddScoped<IInterestsBL, InterestsBL>();
             _services.AddScoped<IHomePageService, HomePageService>();
             _services.AddScoped<IPostsBL, PostsBL>();
+            _services.AddScoped<IGeneralBL, GeneralBL>();
             _services.AddScoped<IUnitOfWork, UnitOfWork>();
             _services.AddScoped<IGenericRepos<AspNetUser>, GenericRepos<AspNetUser>>();
             _services.AddScoped<IGenericRepos<Business>, GenericRepos<Business>>();

@@ -82,6 +82,7 @@ namespace Brandsome.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+
             }
             app.ConfigureCustomExceptionMiddleware();
             app.UseSwagger();
