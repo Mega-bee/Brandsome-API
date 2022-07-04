@@ -18,6 +18,9 @@ namespace Brandsome.DAL.Models
         public int? CampaignId { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime? CreatedDate { get; set; }
+        [Column("IMEI")]
+        [StringLength(31)]
+        public string Imei { get; set; }
 
         [ForeignKey("UserId")]
         [InverseProperty("BusinessViews")]

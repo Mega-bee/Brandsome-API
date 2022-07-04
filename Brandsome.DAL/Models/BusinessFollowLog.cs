@@ -17,6 +17,9 @@ namespace Brandsome.DAL.Models
         public bool? IsFollow { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime? CreatedDate { get; set; }
+        [Column("IMEI")]
+        [StringLength(31)]
+        public string Imei { get; set; }
 
         [ForeignKey("BusinessId")]
         [InverseProperty("BusinessFollowLogs")]

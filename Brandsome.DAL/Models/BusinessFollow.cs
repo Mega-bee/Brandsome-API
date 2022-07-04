@@ -17,6 +17,9 @@ namespace Brandsome.DAL.Models
         [Column(TypeName = "datetime")]
         public DateTime? CreatedDate { get; set; }
         public bool? IsDeleted { get; set; }
+        [Column("IMEI")]
+        [StringLength(31)]
+        public string Imei { get; set; }
 
         [ForeignKey("BusinessId")]
         [InverseProperty("BusinessFollows")]

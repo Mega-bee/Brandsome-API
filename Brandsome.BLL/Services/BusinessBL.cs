@@ -87,6 +87,7 @@ namespace Brandsome.BLL.Services
                     Id = bc.Id,
                     Name = bc.City.Title ?? ""
                 }).ToList(),
+                 IsFollowed = b.BusinessFollows.Where(bf => bf.UserId == uid).FirstOrDefault() != null,
                 Description = b.Description ?? "",
                 FollowCount = b.BusinessFollowCount ?? 0,
                 PhoneNumber = b.BusinessPhone ?? "",
@@ -420,6 +421,31 @@ namespace Brandsome.BLL.Services
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
             responseModel.Data = new DataModel { Data = "", Message = "Phone click registered succesfully" };
+            return responseModel;
+        }
+
+        public async Task<ResponseModel> RegisterNewBusinesView(string uid,string imei,int businessId)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            Business business = await _uow.BusinessRepository.GetAll(x => x.Id == businessId).FirstOrDefaultAsync();
+            if (business == null)
+            {
+                responseModel.ErrorMessage = "Business not found";
+                responseModel.StatusCode = 404;
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                return responseModel;
+            }
+            BusinessView newView = new BusinessView()
+            {
+                BusinessId = businessId,
+                UserId = uid,
+                CreatedDate = DateTime.UtcNow,
+                  Imei = imei
+            };
+            await _uow.BusinessViewRepository.Create(newView);
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = "", Message = "Business view registered succesfully" };
             return responseModel;
         }
 

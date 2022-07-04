@@ -54,6 +54,7 @@ namespace Brandsome.BLL
             _services.AddScoped<IGenericRepos<PostLikeLog>, GenericRepos<PostLikeLog>>();
             _services.AddScoped<IGenericRepos<PostView>, GenericRepos<PostView>>();
             _services.AddScoped<IGenericRepos<Device>, GenericRepos<Device>>();
+            _services.AddScoped<IGenericRepos<BusinessView>, GenericRepos<BusinessView>>();
             _services.AddScoped<NotificationHelper>();
             _services.AddScoped<IConverters,Converters>();
             _services.AddScoped<ValidationFilterAttribute>();

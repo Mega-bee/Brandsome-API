@@ -92,7 +92,7 @@ namespace Brandsome.BLL.Services
                 }
             }
             Otp = user.Otp;
-            content = $"Your OTP is {Otp}";
+            content = $"Your code is {Otp}";
             Helpers.SendSMS(phoneNumber, content);
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
@@ -111,7 +111,7 @@ namespace Brandsome.BLL.Services
             if (userOtp == null)
             {
                 Otp = userOtp;
-                content = $"Your OTP is {Otp}";
+                content = $"Your code is {Otp}";
                 Helpers.SendSMS(phoneNumber, content);
                 responseModel.StatusCode = 200;
                 responseModel.ErrorMessage = "";
@@ -197,8 +197,11 @@ namespace Brandsome.BLL.Services
                 responseModel.ErrorMessage = "User not found";
                 return responseModel;
             }
-            user.DateOfBirth = profile.Birthday ?? user.DateOfBirth;
-            user.GenderId = profile.GenderId ?? user.GenderId;
+
+            user.DateOfBirth = profile.Birthday;
+            user.GenderId = profile.GenderId;
+            user.PhoneNumber = profile.PhoneNumber;
+            user.UserName = profile.Username;
 
             IFormFile file = profile.ImageFile;
             if (file != null)

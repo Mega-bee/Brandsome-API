@@ -19,5 +19,6 @@ namespace Brandsome.BLL.IServices
         Task<ResponseModel> UpdateBusiness(CreateBusiness_VM business);
         Task<ResponseModel> DeleteBusiness(string uid, int businessId);
         Task<ResponseModel> RegisterNewPhoneClick(string uid, int businessId);
+        Task<ResponseModel> RegisterNewBusinesView(string uid, string imei, int businessId);
     }
 }

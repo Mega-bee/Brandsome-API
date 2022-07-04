@@ -124,7 +124,8 @@ namespace Brandsome.BLL.ViewModels
     {
         
         public int? GenderId { get; set; }
-        //public string PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Username { get; set; }
         public DateTime? Birthday { get; set; }
         public IFormFile ImageFile { get; set; }
     }

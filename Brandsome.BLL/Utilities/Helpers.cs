@@ -103,7 +103,7 @@ namespace Brandsome.BLL.Utilities
                 //var sssss = "https://api.smsala.com/api/SendSMS?api_id=API898318662588&api_password=P@ssw0rd&sms_type=P&encoding=T&sender_id=HOLOL&phonenumber=966" + to + $"&textmessage={content}" + "&uid=SAU898312805752&callback_url=https://xyz.com/";
                 //var sssss = "http://sms.gateway.sa:6005/api/v2/SendSMS?SenderId=CaterMe&Is_Unicode=false&Is_Flash=false&" + $"Message={content}" + "&MobileNumbers=966" + to + "&ApiKey=CG6WXovTOdX12VOP+781SZR27ff6Pd6yCrZHf1UAvGc=&ClientId=d91477cf-98fe-4e2f-9e1e-533ae06ecb29";
 
-                var sssss = " https://www.proxireach.com/bestsmsbulkapi/sendSmsAPI.php?username=megabee&&password=MegaBee123!faq" + $"&&message={content}&&senderid=YJ OTP&&destination=" + to /*+ "&&date=DATE&&time=TIME"*/;
+                var sssss = " https://www.proxireach.com/bestsmsbulkapi/sendSmsAPI.php?username=megabee&&password=MegaBee123!faq" + $"&&message={content}&&senderid=Brandsome&&destination=" + to /*+ "&&date=DATE&&time=TIME"*/;
 
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(sssss);
                 HttpWebResponse httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();

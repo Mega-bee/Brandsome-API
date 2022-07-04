@@ -34,7 +34,7 @@ namespace Brandsome.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetBusiness([FromRoute] int businessId)
         {
-            string uid = "";
+            string uid = null;
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             if (identity.IsAuthenticated)
             {
@@ -63,6 +63,20 @@ namespace Brandsome.API.Controllers
                 uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             }
             return Ok(await _Bbl.RegisterNewPhoneClick(uid, businessId ));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("{businessId}")]
+
+        public async Task<IActionResult> RegisterBusinessView([FromRoute] int businessId,[FromHeader] string imei)
+        {
+            string uid = null;
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity.IsAuthenticated)
+            {
+                uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            }
+            return Ok(await _Bbl.RegisterNewBusinesView(uid, imei,businessId));
         }
 
 
