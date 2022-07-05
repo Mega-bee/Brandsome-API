@@ -99,7 +99,7 @@ namespace Brandsome.API
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                //endpoints.MapHub<NotificationHub>("/hubs/notification");
+                endpoints.MapHub<NotificationHub>("/hubs/notification");
             });
 
 

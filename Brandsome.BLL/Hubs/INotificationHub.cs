@@ -12,5 +12,6 @@ namespace Brandsome.BLL.Hubs
         Task MessageToUser(object outgoingMessage);
         Task UpdatedUserList(object onlineUsers);
         Task UpdatedDashboard(dynamic patients);
+        Task UpdateSearchList(Search_VM search);
     }
 }

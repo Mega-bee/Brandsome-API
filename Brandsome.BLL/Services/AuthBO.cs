@@ -146,7 +146,7 @@ namespace Brandsome.BLL.Services
             responseModel.Data = new DataModel { Data = "", Message = "Fcm token succesfully set" };
             return responseModel;
         }
-
+        
         public async Task<ResponseModel> VerifyOtp(string phoneNumber, string otp)
         {
             ResponseModel responseModel = new ResponseModel();
@@ -246,6 +246,7 @@ namespace Brandsome.BLL.Services
                 {
                     Id = b.Id,
                     Name = b.BusinessName,
+                     Image = $"{request.Scheme}://{request.Host}/Images/{x.Image.Trim()}".Trim(),
                 }).ToList(),
                  BusinessesCount = x.Businesses.Where(b=> b.IsDeleted == false).Count(),
                   Name = x.UserName,
