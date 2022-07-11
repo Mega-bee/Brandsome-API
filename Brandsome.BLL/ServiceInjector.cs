@@ -16,6 +16,7 @@ using Brandsome.DAL.Services;
 using Brandsome.DAL.Models;
 using Brandsome.DAL.Repos;
 using Brandsome.BLL.Services;
+using Microsoft.IO;
 
 namespace Brandsome.BLL
 {
@@ -58,6 +59,7 @@ namespace Brandsome.BLL
             _services.AddScoped<NotificationHelper>();
             _services.AddScoped<IConverters,Converters>();
             _services.AddScoped<ValidationFilterAttribute>();
+            _services.AddScoped<RecyclableMemoryStreamManager>();
 
             var configurationMapper = new MapperConfiguration(option =>
             {

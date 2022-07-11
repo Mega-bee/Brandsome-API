@@ -77,7 +77,7 @@ namespace Brandsome.API
         {
             //app.UseWebSockets();
             app.UseCors(options => options.AllowAnyOrigin()/*.WithOrigins("http://localhost:3000", "http://localhost:3001", "http://localhost:63644", "https://sentinel-admin.netlify.app/", "https://sentinel-admin.netlify.app")*/.AllowAnyHeader()
-            .WithMethods("GET", "POST", "OPTIONS", "PUT", "DELETE")/*.AllowCredentials()*/
+            .WithMethods("GET", "POST", "OPTIONS", "PUT", "DELETE")
             );
             if (env.IsDevelopment())
             {
@@ -94,12 +94,12 @@ namespace Brandsome.API
 
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.ConfigureCustomApiLoggingMiddleware();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                endpoints.MapHub<NotificationHub>("/hubs/notification");
+                endpoints.MapHub<NotificationHub>("/hubs/signalrHub");
             });
 
 

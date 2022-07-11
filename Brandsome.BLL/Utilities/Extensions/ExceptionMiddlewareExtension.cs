@@ -14,5 +14,7 @@ namespace Brandsome.BLL.Utilities.Extensions
         {
             app.UseMiddleware<ExceptionHandler>();
         }
+
+
     }
 }

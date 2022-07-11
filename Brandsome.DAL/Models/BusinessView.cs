@@ -19,7 +19,7 @@ namespace Brandsome.DAL.Models
         [Column(TypeName = "datetime")]
         public DateTime? CreatedDate { get; set; }
         [Column("IMEI")]
-        [StringLength(31)]
+        [StringLength(63)]
         public string Imei { get; set; }
 
         [ForeignKey("UserId")]

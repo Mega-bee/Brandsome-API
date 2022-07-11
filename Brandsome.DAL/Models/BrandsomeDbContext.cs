@@ -16,6 +16,7 @@ namespace Brandsome.DAL.Models
         {
         }
 
+        public virtual DbSet<ApiDataLogging> ApiDataLoggings { get; set; }
         public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
         public virtual DbSet<AspNetRoleClaim> AspNetRoleClaims { get; set; }
         public virtual DbSet<AspNetUser> AspNetUsers { get; set; }

@@ -43,7 +43,7 @@ namespace Brandsome.BLL.Services
                 Id = c.Id,
                 Name = c.Title,
             }).ToListAsync();
-            mainLists.Posts = await _uow.PostRepository.GetAll(x => x.IsDeleted == false && x.BusinessCity.IsDeleted == false && x.BusinessService.IsDeleted == false).Select(p => new Post_VM
+            mainLists.Posts = await _uow.PostRepository.GetAll(x =>  x.IsDeleted == false && x.BusinessCity.Business.IsDeleted == false /*&& x.BusinessCity.IsDeleted == false && x.BusinessService.IsDeleted == false*/).Select(p => new Post_VM
             {
                 Name = p.BusinessCity.Business.BusinessName ?? "",
                 Description = p.Descrption ?? "",
@@ -56,11 +56,11 @@ namespace Brandsome.BLL.Services
                 PostMedia = p.PostMedia.Select(pm => new PostMedia_VM
                 {
                     Id = pm.Id,
-                    Url = $"{request.Scheme}://{request.Host}/posts/media/{pm.FilePath}",
+                    Url = $"{request.Scheme}://{request.Host}/Posts/Media/{pm.FilePath}",
                     MediaTypeId = pm.PostTypeId ?? 0,
                     MediaTypeName = pm.PostType.Title ?? "",
 
-                }).ToList(),
+                }).OrderByDescending(p=> p.Id).ToList(),
                  
             }).ToListAsync();
             mainLists.Businesses = await _uow.BusinessRepository.GetAll().Where(x => x.IsDeleted == false).Select(business => new Business_VM

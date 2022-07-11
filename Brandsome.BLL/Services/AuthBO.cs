@@ -242,15 +242,25 @@ namespace Brandsome.BLL.Services
             ResponseModel responseModel = new ResponseModel();
             AccountSettings_VM settings = await _uow.UserRepository.GetAll().Where(x => x.Id == uid).Select(x => new AccountSettings_VM
             {
-                Businesses = x.Businesses.Select(b => new AccountSettingsBusiness_VM
+                Businesses = x.Businesses.Where(b=> b.IsDeleted == false).Select(b => new AccountSettingsBusiness_VM
                 {
                     Id = b.Id,
                     Name = b.BusinessName,
-                     Image = $"{request.Scheme}://{request.Host}/Images/{x.Image.Trim()}".Trim(),
+                     Image = $"{request.Scheme}://{request.Host}/Images/{b.Image.Trim()}".Trim(),
+                      Cities = b.BusinessCities.Where(bc=> bc.IsDeleted == false).Select(bc=> new BusinessCity_VM
+                      {
+                           Id = bc.Id,
+                           Name = bc.City.Title
+                      }).ToList(),
+                      Services = b.BusinessServices.Where(bs=> bs.IsDeleted == false).Select(bs=> new BusinessService_VM
+                      {
+                           Id = bs.Id,
+                            Name = bs.Service.Title
+                      }).ToList()
                 }).ToList(),
                  BusinessesCount = x.Businesses.Where(b=> b.IsDeleted == false).Count(),
                   Name = x.UserName,
-                FollowingCount = x.BusinessFollows.Count(),
+                FollowingCount = x.BusinessFollows.Where(bf=> bf.Business.IsDeleted == false).Count(),
                 ReviewCount = x.BusinessReviews.Where(x=> x.IsDeleted == false).Count(),
                 ImageUrl = $"{request.Scheme}://{request.Host}/Images/{x.Image.Trim()}".Trim(),
             }).FirstOrDefaultAsync();
@@ -263,10 +273,10 @@ namespace Brandsome.BLL.Services
         public async Task<ResponseModel> GetFollowedBusinesses(string uid, HttpRequest request)
         {
             ResponseModel responseModel = new ResponseModel();
-            List<FollowedBusiness_VM> businesses = await _uow.BusinessFollowRepository.GetAll(x => x.UserId == uid && x.IsDeleted == false).Select(bf => new FollowedBusiness_VM
+            List<FollowedBusiness_VM> businesses = await _uow.BusinessFollowRepository.GetAll(x => x.UserId == uid && x.IsDeleted == false && x.Business.IsDeleted == false).Select(bf => new FollowedBusiness_VM
             {
-                Id = bf.Id,
-                Image = $"{request.Scheme}://{request.Host}/Uploads/{bf.Business.Image}",
+                Id = (int)bf.BusinessId,
+                Image = $"{request.Scheme}://{request.Host}/Images/{bf.Business.Image}",
                 Name = bf.Business.BusinessName,
                 Type = bf.Business.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Category.Title + "/" + bf.Business.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Title,
                 Services = bf.Business.BusinessServices.Where(bs => bs.IsDeleted == false).Select(bs => new BusinessService_VM

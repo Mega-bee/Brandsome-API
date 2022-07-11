@@ -28,6 +28,13 @@ namespace Brandsome.API.Controllers
             return Ok(await _Bbl.GetBusinsses(services,sortBy, Request));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetUserBusinesses()
+        {
+           string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _Bbl.GetUserBusinesses(uid,Request));
+        }
+
 
         //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpGet("{businessId}")]
@@ -95,7 +102,7 @@ namespace Brandsome.API.Controllers
             return Ok(await _Bbl.CreateBusiness(uid, business));
         }
 
-        [HttpPost]
+        [HttpPut]
         public async Task<IActionResult> UpdateBusiness([FromForm] CreateBusiness_VM business)
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;

@@ -52,7 +52,7 @@ namespace Brandsome.BLL.Services
             {
                 if (services.Count > 0)
                 {
-                    businesses = businesses.Where(x => x.Services.Any(s => services.Contains(s.Id))).ToList();
+                    businesses = businesses.Where(x => x.Services.Any(s => services.Contains((int)s.Id))).ToList();
                 }
 
             }
@@ -74,6 +74,21 @@ namespace Brandsome.BLL.Services
             responseModel.StatusCode = 200;
             return responseModel;
 
+        }
+
+        public async Task<ResponseModel> GetUserBusinesses(string uid,HttpRequest request)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            List<AccountSettingsBusiness_VM> businesses = await _uow.BusinessRepository.GetAll(b => b.UserId == uid && b.IsDeleted == false).Select(b => new AccountSettingsBusiness_VM
+            {
+                Id = b.Id,
+                Name = b.BusinessName,
+                Image = $"{request.Scheme}://{request.Host}/Images/{b.Image.Trim()}".Trim(),
+            }).ToListAsync();
+            responseModel.Data = new DataModel { Data = businesses, Message = "" };
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            return responseModel;
         }
 
         public async Task<ResponseModel> GetBusiness(string uid, int businessId, HttpRequest request)
@@ -122,7 +137,7 @@ namespace Brandsome.BLL.Services
                     Name = br.User.UserName ?? "",
                     Image = $"{request.Scheme}://{request.Host}/Uploads/{br.User.Image}",
                      CreatedDate = br.CreatedDate
-                }).ToList(),
+                }).OrderBy(br=> br.CreatedDate).ToList(),
                 Services = b.BusinessServices.Select(bs => new BusinessService_VM
                 {
                     Id = bs.Id,
@@ -267,7 +282,7 @@ namespace Brandsome.BLL.Services
             ResponseModel responseModel = new ResponseModel();
             BusinessCity businessCity;
             BusinessService businessService;
-            Business currBusiness = await _uow.BusinessRepository.GetByIdWithPredicateAndIncludes(x => x.Id == business.Id, x => x.BusinessServices, x => x.BusinessCities);
+            Business currBusiness = await _uow.BusinessRepository.GetByIdWithPredicateAndIncludes(x => x.Id == business.Id, x => x.BusinessServices.Where(bs => bs.IsDeleted == false), x => x.BusinessCities.Where(bc => bc.IsDeleted == false));
             if (currBusiness == null)
             {
                 responseModel.ErrorMessage = "Business not found";
@@ -285,30 +300,49 @@ namespace Brandsome.BLL.Services
                 currBusiness.Image = NewFileName;
             }
             await _uow.BusinessRepository.Update(currBusiness);
-            foreach (var item in business.Cities)
+            foreach (var item in currBusiness.BusinessCities)
             {
-                businessCity = new BusinessCity()
-                {
-                    CityId = item,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.UtcNow,
-                    BusinessId = currBusiness.Id,
-                };
-                await _uow.BusinessCityRepository.Create(businessCity);
+                item.IsDeleted = true;
+                await _uow.BusinessCityRepository.Update(item);
             }
 
-            foreach (var item in business.Services)
+            foreach (var item in currBusiness.BusinessServices)
             {
-                businessService = new BusinessService()
-                {
-                    BusinessId = currBusiness.Id,
-                    IsDeleted = false,
-                    ServiceId = item,
-                    CreatedDate = DateTime.UtcNow,
-                };
-
-                await _uow.BusinessServiceRepository.Create(businessService);
+                item.IsDeleted = true;
+                await _uow.BusinessServiceRepository.Update(item);
             }
+            if (business.Cities != null)
+            {
+
+                foreach (var item in business.Cities)
+                {
+                    businessCity = new BusinessCity()
+                    {
+                        CityId = item,
+                        IsDeleted = false,
+                        CreatedDate = DateTime.UtcNow,
+                        BusinessId = currBusiness.Id,
+                    };
+                    await _uow.BusinessCityRepository.Create(businessCity);
+                }
+            }
+          
+            if(business.Services != null)
+            {
+                foreach (var item in business.Services)
+                {
+                    businessService = new BusinessService()
+                    {
+                        BusinessId = currBusiness.Id,
+                        IsDeleted = false,
+                        ServiceId = item,
+                        CreatedDate = DateTime.UtcNow,
+                    };
+
+                    await _uow.BusinessServiceRepository.Create(businessService);
+                }
+            }
+          
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
             responseModel.Data = new DataModel { Data = "", Message = "Business updated successfully" };
