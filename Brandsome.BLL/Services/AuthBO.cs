@@ -249,12 +249,12 @@ namespace Brandsome.BLL.Services
                      Image = $"{request.Scheme}://{request.Host}/Images/{b.Image.Trim()}".Trim(),
                       Cities = b.BusinessCities.Where(bc=> bc.IsDeleted == false).Select(bc=> new BusinessCity_VM
                       {
-                           Id = bc.Id,
+                           Id = (int)bc.CityId,
                            Name = bc.City.Title
                       }).ToList(),
                       Services = b.BusinessServices.Where(bs=> bs.IsDeleted == false).Select(bs=> new BusinessService_VM
                       {
-                           Id = bs.Id,
+                           Id = (int)bs.ServiceId,
                             Name = bs.Service.Title
                       }).ToList()
                 }).ToList(),
