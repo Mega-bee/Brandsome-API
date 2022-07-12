@@ -75,7 +75,7 @@ namespace Brandsome.API.Controllers
         [AllowAnonymous]
         [HttpPost("{businessId}")]
 
-        public async Task<IActionResult> RegisterBusinessView([FromRoute] int businessId,[FromHeader] string imei)
+        public async Task<IActionResult> RegisterBusinessView([FromRoute] int businessId,[FromHeader(Name ="imei")] string imei)
         {
             string uid = null;
             var identity = HttpContext.User.Identity as ClaimsIdentity;
