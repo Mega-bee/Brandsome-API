@@ -99,7 +99,7 @@ namespace Brandsome.BLL.Services
                 Id = b.Id,
                 Cities = b.BusinessCities.Where(bc => bc.IsDeleted == false).Select(bc => new BusinessCity_VM
                 {
-                    Id = bc.Id,
+                    Id = (int)bc.CityId,
                     Name = bc.City.Title ?? ""
                 }).ToList(),
                  IsFollowed = b.BusinessFollows.Where(bf => bf.UserId == uid).FirstOrDefault() != null,
@@ -140,7 +140,7 @@ namespace Brandsome.BLL.Services
                 }).OrderBy(br=> br.CreatedDate).ToList(),
                 Services = b.BusinessServices.Select(bs => new BusinessService_VM
                 {
-                    Id = bs.Id,
+                    Id = (int)bs.ServiceId,
                     Name = bs.Service.Title ?? ""
                 }).ToList(),
                 IsUserBusiness = uid == b.UserId,
