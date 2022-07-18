@@ -1,4 +1,5 @@
 ﻿using Brandsome.BLL.IServices;
+using Brandsome.BLL.Utilities.ActionFilters;
 using Brandsome.BLL.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ namespace Brandsome.API.Controllers
 {
 
     [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+    [ServiceFilter(typeof(AccountValidityFilterAttribute))]
     public class BusinessesController : APIBaseController
     {
         private readonly IBusinessBL _Bbl;
@@ -25,7 +27,13 @@ namespace Brandsome.API.Controllers
         [HttpGet]
         public async Task <IActionResult> GetBusinesses([FromQuery] string sortBy, [FromQuery] List<int> services)
         {
-            return Ok(await _Bbl.GetBusinsses(services,sortBy, Request));
+            string uid = null;
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity.IsAuthenticated)
+            {
+                uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            }
+            return Ok(await _Bbl.GetBusinsses(services,sortBy, Request,uid));
         }
 
         [HttpGet]

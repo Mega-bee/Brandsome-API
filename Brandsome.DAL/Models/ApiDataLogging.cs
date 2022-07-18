@@ -16,16 +16,16 @@ namespace Brandsome.DAL.Models
         public string ProfileId { get; set; }
         [StringLength(255)]
         public string ApiName { get; set; }
+        public string JsonResponse { get; set; }
+        [Column(TypeName = "datetime")]
+        public DateTime? CreatedDate { get; set; }
+        public string ApiParameters { get; set; }
+        [StringLength(255)]
+        public string QueryParameters { get; set; }
         [Column("IMEI")]
         [StringLength(63)]
         public string Imei { get; set; }
         [StringLength(15)]
         public string Method { get; set; }
-        [StringLength(255)]
-        public string QueryParameters { get; set; }
-        public string JsonResponse { get; set; }
-        [Column(TypeName = "datetime")]
-        public DateTime? CreatedDate { get; set; }
-        public string ApiParameters { get; set; }
     }
 }

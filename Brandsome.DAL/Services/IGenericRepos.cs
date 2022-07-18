@@ -20,6 +20,7 @@ namespace Brandsome.DAL.Services
         Task<T> Update(T entity);
 
         Task Delete(int id);
+        bool CheckIfExists(Expression<Func<T, bool>> predicate);
         Task<T> GetFirst(Expression<Func<T, bool>> predicate);
         Task<T> GetByIdWithPredicateAndIncludes(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
         IQueryable<T> GetAll(Expression<Func<T, bool>> predicate);
@@ -27,5 +28,6 @@ namespace Brandsome.DAL.Services
         T GetByIdWithPredicateAndIncludesString(Expression<Func<T, bool>> predicate, string[] includes);
         IQueryable<T> GetAllWithPredicateAndIncludesString(Expression<Func<T, bool>> predicate, string[] includes);
         IQueryable<T> GetAllWithInclude(params Expression<Func<T, object>>[] includes);
+        //void ExecuteRawSQL(string query, params object[] parameters);
     }
 }

@@ -32,6 +32,7 @@ namespace Brandsome.BLL.ViewModels
         public int ReviewCount { get; set; }
         public int FollowCount { get; set; }
         public string Image { get; set; }
+        public bool IsFollowed { get; set; }
 
     }
 
@@ -48,11 +49,13 @@ namespace Brandsome.BLL.ViewModels
 
     public partial class BusinessCity_VM : BusinessBase_VM
     {
-
+       
+        public int? BusinessCityId { get; set; }
     }
 
     public partial class BusinessService_VM : BusinessBase_VM
     {
+        public int? BusinessServiceId { get; set; }
     }
 
     public partial class CreateBusiness_VM

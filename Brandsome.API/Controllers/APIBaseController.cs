@@ -10,6 +10,7 @@ namespace Brandsome.API.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public class APIBaseController : ControllerBase
     {

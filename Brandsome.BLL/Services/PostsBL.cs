@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Brandsome.BLL.IServices;
 using Brandsome.BLL.Utilities;
+using Brandsome.BLL.Utilities.Logging;
 using Brandsome.BLL.ViewModels;
 using Brandsome.DAL;
 using Brandsome.DAL.Models;
@@ -16,7 +17,7 @@ namespace Brandsome.BLL.Services
 {
     public class PostsBL : BaseBO, IPostsBL
     {
-        public PostsBL(IUnitOfWork unit, IMapper mapper, NotificationHelper notificationHelper) : base(unit, mapper, notificationHelper)
+        public PostsBL(IUnitOfWork unit, IMapper mapper, NotificationHelper notificationHelper, ILoggerManager logger) : base(unit, mapper, notificationHelper, logger)
         {
 
         }
@@ -162,10 +163,10 @@ namespace Brandsome.BLL.Services
                 return responseModel;
             }
 
-            postLike = await _uow.PostLikeRepository.GetAll(pl => pl.PostId == postId && pl.IsDeleted == false).Select(x => new PostLike_VM
+            postLike = await _uow.PostLikeRepository.GetAll(pl => pl.PostId == postId && pl.IsDeleted == false && pl.User.IsDeleted == false).Select(x => new PostLike_VM
             {
                 Id = x.Id,
-                 Name=x.User.UserName,
+                 Name=x.User.Name,
                   Image= $"{request.Scheme}://{request.Host}/Images/{x.User.Image}".Trim()
             }).ToListAsync();
            

@@ -40,6 +40,7 @@ namespace Brandsome.DAL.Models
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<City> Cities { get; set; }
         public virtual DbSet<Device> Devices { get; set; }
+        public virtual DbSet<ErrorLog> ErrorLogs { get; set; }
         public virtual DbSet<Gender> Genders { get; set; }
         public virtual DbSet<Interest> Interests { get; set; }
         public virtual DbSet<Post> Posts { get; set; }
@@ -239,15 +240,15 @@ namespace Brandsome.DAL.Models
 
             modelBuilder.Entity<Interest>(entity =>
             {
-                entity.HasOne(d => d.Devide)
-                    .WithMany(p => p.Interests)
-                    .HasForeignKey(d => d.DevideId)
-                    .HasConstraintName("FK_Interest_Device");
-
                 entity.HasOne(d => d.Service)
                     .WithMany(p => p.Interests)
                     .HasForeignKey(d => d.ServiceId)
                     .HasConstraintName("FK_Interest_Services");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Interests)
+                    .HasForeignKey(d => d.UserId)
+                    .HasConstraintName("FK_Interest_AspNetUsers");
             });
 
             modelBuilder.Entity<Post>(entity =>

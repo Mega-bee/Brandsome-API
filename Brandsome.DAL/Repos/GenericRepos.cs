@@ -49,6 +49,11 @@ namespace Brandsome.DAL.Repos
             return _context.Set<T>().AsNoTracking();
         }
 
+        public bool CheckIfExists(Expression<Func<T, bool>> predicate)
+        {
+            return _context.Set<T>().Where(predicate).Any();
+        }
+
         public IQueryable<T> GetAllWithInclude(params Expression<Func<T, object>>[] includes)
         {
             var query = includes.Aggregate(GetAll(), (current, includeProperty) => current.Include(includeProperty)).AsNoTracking();
@@ -115,6 +120,9 @@ namespace Brandsome.DAL.Repos
 
             return includes.Aggregate(query, (current, includeProperty) => current.Include(includeProperty)).SingleOrDefault(predicate);
         }
+
+        ////// EXECUTE SQL STORED PROCEDURE 
+
 
     }
 }

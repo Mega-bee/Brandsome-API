@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Brandsome.API.Controllers
@@ -38,5 +40,14 @@ namespace Brandsome.API.Controllers
         {
             return Ok(await _interestsBL.GetSearchCategories());
         }
+
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [HttpPost]
+        public async Task<IActionResult> SetUserInterests([FromForm] List<int> services)
+        {
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _interestsBL.SetInterests(uid,services));
+        }
+
     }
 }

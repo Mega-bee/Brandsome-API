@@ -19,6 +19,7 @@ namespace Brandsome.DAL.Models
             BusinessReviews = new HashSet<BusinessReview>();
             BusinessViews = new HashSet<BusinessView>();
             Businesses = new HashSet<Business>();
+            Interests = new HashSet<Interest>();
             PostLikeLogs = new HashSet<PostLikeLog>();
             PostLikes = new HashSet<PostLike>();
             PostViews = new HashSet<PostView>();
@@ -29,6 +30,8 @@ namespace Brandsome.DAL.Models
         public string Id { get; set; }
         [StringLength(256)]
         public string UserName { get; set; }
+        [StringLength(256)]
+        public string Name { get; set; }
         [StringLength(256)]
         public string NormalizedUserName { get; set; }
         [StringLength(256)]
@@ -59,6 +62,7 @@ namespace Brandsome.DAL.Models
         public int? GenderId { get; set; }
         [StringLength(255)]
         public string FcmToken { get; set; }
+        public bool? IsDeleted { get; set; }
 
         [ForeignKey("GenderId")]
         [InverseProperty("AspNetUsers")]
@@ -81,6 +85,8 @@ namespace Brandsome.DAL.Models
         public virtual ICollection<BusinessView> BusinessViews { get; set; }
         [InverseProperty("User")]
         public virtual ICollection<Business> Businesses { get; set; }
+        [InverseProperty("User")]
+        public virtual ICollection<Interest> Interests { get; set; }
         [InverseProperty("User")]
         public virtual ICollection<PostLikeLog> PostLikeLogs { get; set; }
         [InverseProperty("User")]

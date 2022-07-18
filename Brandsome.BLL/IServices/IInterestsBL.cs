@@ -1,5 +1,6 @@
 ﻿using Brandsome.BLL.ViewModels;
 using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Brandsome.BLL.IServices
@@ -11,6 +12,7 @@ namespace Brandsome.BLL.IServices
         Task<ResponseModel> GetSubCategories(int categoryId);
 
         Task<ResponseModel> GetSearchCategories();
+        Task<ResponseModel> SetInterests(string uid, List<int> services);
         //Task<ResponseModel> GetMainLists(string uid,HttpRequest request);
     }
 }

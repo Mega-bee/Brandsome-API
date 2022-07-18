@@ -11,7 +11,6 @@ namespace Brandsome.DAL.Models
     {
         public Device()
         {
-            Interests = new HashSet<Interest>();
             PostViews = new HashSet<PostView>();
         }
 
@@ -24,8 +23,6 @@ namespace Brandsome.DAL.Models
         [StringLength(511)]
         public string DeviceName { get; set; }
 
-        [InverseProperty("Devide")]
-        public virtual ICollection<Interest> Interests { get; set; }
         [InverseProperty("Device")]
         public virtual ICollection<PostView> PostViews { get; set; }
     }

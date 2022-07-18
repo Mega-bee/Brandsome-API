@@ -19,6 +19,7 @@ using Brandsome.BLL.ViewModels;
 using Brandsome.DAL.Models;
 using Brandsome.DAL;
 using Brandsome.DAL.Data;
+using Brandsome.BLL.Utilities.Logging;
 
 namespace Brandsome.BLL.Services
 {
@@ -28,7 +29,8 @@ namespace Brandsome.BLL.Services
         private readonly BrandsomeDbContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public AuthBO(IUnitOfWork unit, IMapper mapper, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, BrandsomeDbContext context, NotificationHelper notificationHelper, RoleManager<IdentityRole> roleManager) : base(unit, mapper, notificationHelper)
+
+        public AuthBO(IUnitOfWork unit, IMapper mapper, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, BrandsomeDbContext context, NotificationHelper notificationHelper, RoleManager<IdentityRole> roleManager, ILoggerManager logger) : base(unit, mapper, notificationHelper,logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -47,7 +49,6 @@ namespace Brandsome.BLL.Services
                 await _roleManager.CreateAsync(new IdentityRole { Name = AppSetting.AdminRole, NormalizedName = AppSetting.AdminRoleNormalized });
             }
         }
-
         public async Task<ResponseModel> RequestOtp(string phoneNumber, string userName)
         {
             ApplicationUser appUser = null;
@@ -55,19 +56,21 @@ namespace Brandsome.BLL.Services
             string Otp = "";
              string content = "";
             await CheckRoles();
-            var user = await _uow.UserRepository.GetAll().Where(x => x.PhoneNumber == phoneNumber).FirstOrDefaultAsync();
+            var user = await _uow.UserRepository.GetAll().Where(x => x.PhoneNumber == phoneNumber && x.IsDeleted == false).FirstOrDefaultAsync();
             if (user == null)
             {
                 appUser = new ApplicationUser()
                 {
-                    PhoneNumber = phoneNumber,
-                    DateOfBirth = DateTime.Now,
+                    PhoneNumber = phoneNumber.Trim(),
+                    DateOfBirth = null,
                     CreatedDate = DateTime.UtcNow,
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = false,
-                    UserName = userName,
+                    UserName = phoneNumber.Trim(),
+                    Name = userName,
                     Balance = 0,
-                    Image = "user-placeholder.png"
+                    Image = "user-placeholder.png",
+                    IsDeleted = false
                 };
                 IdentityResult res = await _userManager.CreateAsync(appUser);
                 if (res.Succeeded)
@@ -76,7 +79,7 @@ namespace Brandsome.BLL.Services
                     Otp = Helpers.Generate_otp();
                     appUser.Otp = Otp;
                     await _userManager.UpdateAsync(appUser);
-                    content = $"Your OTP is {Otp}";
+                    content = $"Your pin is {Otp}";
                     Helpers.SendSMS(phoneNumber, content);
                     responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number" };
                     responseModel.StatusCode = 200;
@@ -92,7 +95,7 @@ namespace Brandsome.BLL.Services
                 }
             }
             Otp = user.Otp;
-            content = $"Your code is {Otp}";
+            content = $"Your pin is {Otp}";
             Helpers.SendSMS(phoneNumber, content);
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
@@ -106,12 +109,12 @@ namespace Brandsome.BLL.Services
             string Otp = "";
             string content = "";
             await CheckRoles();
-            string userOtp = await _uow.UserRepository.GetAll().Where(x => x.PhoneNumber == phoneNumber).Select(x => x.Otp).FirstOrDefaultAsync();
+            string userOtp = await _uow.UserRepository.GetAll().Where(x => phoneNumber == x.PhoneNumber).Select(x => x.Otp).FirstOrDefaultAsync();
 
-            if (userOtp == null)
+            if (userOtp != null)
             {
                 Otp = userOtp;
-                content = $"Your code is {Otp}";
+                content = $"Your pin is {Otp}";
                 Helpers.SendSMS(phoneNumber, content);
                 responseModel.StatusCode = 200;
                 responseModel.ErrorMessage = "";
@@ -123,6 +126,98 @@ namespace Brandsome.BLL.Services
                 responseModel.StatusCode = 404;
                 responseModel.ErrorMessage = "User was not found";
                 responseModel.Data = new DataModel { Data = "", Message = "" };
+                return responseModel;
+            }
+
+        }
+
+        public async Task<ResponseModel> RequestPhoneNumberChangeOtp(string newPhoneNumber,string uid)
+        {
+            ApplicationUser appUser = null;
+            ResponseModel responseModel = new ResponseModel();
+            AspNetUser user;
+            string Otp = "";
+            string content = "";
+            await CheckRoles();
+            user = await _uow.UserRepository.GetAll().Where(x => x.PhoneNumber == newPhoneNumber && x.IsDeleted == false).FirstOrDefaultAsync();
+            
+            if (user != null)
+            {
+                responseModel.ErrorMessage = "New phone number is associated with another account";
+                responseModel.StatusCode = 400;
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                return responseModel;
+            } else
+            {
+                user = await _uow.UserRepository.GetAll().Where(x => x.Id == uid && x.IsDeleted == false).FirstOrDefaultAsync();
+            }
+            Otp = user.Otp;
+            content = $"Your pin is {Otp}";
+            Helpers.SendSMS(newPhoneNumber, content);
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number" };
+            return responseModel;
+        }
+
+        public async Task<ResponseModel> ResendPhoneNumberChangeOtp(string newPhoneNumber,string uid)
+        {
+            // ApplicationUser appUser = null;
+            ResponseModel responseModel = new ResponseModel();
+            string Otp = "";
+            string content = "";
+            await CheckRoles();
+            string userOtp = await _uow.UserRepository.GetAll().Where(x => x.Id == uid).Select(x => x.Otp).FirstOrDefaultAsync();
+
+            if (userOtp != null)
+            {
+                Otp = userOtp;
+                content = $"Your pin is {Otp}";
+                Helpers.SendSMS(newPhoneNumber, content);
+                responseModel.StatusCode = 200;
+                responseModel.ErrorMessage = "";
+                responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number" };
+                return responseModel;
+            }
+            else
+            {
+                responseModel.StatusCode = 404;
+                responseModel.ErrorMessage = "User was not found";
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                return responseModel;
+            }
+
+        }
+
+        public async Task<ResponseModel> VerifyPhoneNumberChangeOtp(string newPhoneNumber, string otp,string uid)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            ApplicationUser appUser = new ApplicationUser();
+            var user = await _uow.UserRepository.GetAll().Where(x => x.Id == uid).Select(x => new { x.Id, x.Otp }).FirstOrDefaultAsync();
+            if (user == null)
+            {
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                responseModel.StatusCode = 400;
+                responseModel.ErrorMessage = "User not found";
+                return responseModel;
+            }
+            if (user.Otp == otp)
+            {
+                appUser = await _userManager.FindByIdAsync(user.Id);
+                
+                appUser.PhoneNumber = newPhoneNumber;
+                await _userManager.UpdateAsync(appUser);
+                //await _signInManager.SignInAsync(appUser, false);
+                responseModel.Data = new DataModel { Data = "", Message = "Phone number verified sucessfully" };
+                responseModel.ErrorMessage = "";
+                responseModel.StatusCode = 200;
+                return responseModel;
+            }
+            else
+            {
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                responseModel.StatusCode = 400;
+                responseModel.ErrorMessage = "Incorrect otp";
                 return responseModel;
             }
 
@@ -201,7 +296,8 @@ namespace Brandsome.BLL.Services
             user.DateOfBirth = profile.Birthday;
             user.GenderId = profile.GenderId;
             user.PhoneNumber = profile.PhoneNumber;
-            user.UserName = profile.Username;
+            user.UserName = profile.PhoneNumber;
+            user.Name = profile.Username;
 
             IFormFile file = profile.ImageFile;
             if (file != null)
@@ -217,7 +313,7 @@ namespace Brandsome.BLL.Services
             IdentityResult updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
             {
-                responseModel.ErrorMessage = "Failed to update user info";
+                responseModel.ErrorMessage = updateResult.Errors.Select(e=> e.Description).FirstOrDefault();
                 responseModel.StatusCode = 400;
                 responseModel.Data = new DataModel { Data = "", Message = "" };
                 return responseModel;
@@ -227,13 +323,13 @@ namespace Brandsome.BLL.Services
                 ImageUrl = $"{request.Scheme}://{request.Host}/Uploads/{p.Image}",
                 Gender = p.Gender.Title ?? "",
                 PhoneNumber = p.PhoneNumber,
-                UserName = p.UserName ?? "",
+                UserName = p.Name ?? "",
                 GenderId = p.GenderId ?? 0,
                 BirthDate = p.DateOfBirth.ToString() ?? "",
             }).FirstOrDefaultAsync();
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
-            responseModel.Data = new DataModel { Data = "", Message = "Profile updated" };
+            responseModel.Data = new DataModel { Data = profile, Message = "Profile updated" };
             return responseModel;
         }
 
@@ -259,7 +355,7 @@ namespace Brandsome.BLL.Services
                       }).ToList()
                 }).ToList(),
                  BusinessesCount = x.Businesses.Where(b=> b.IsDeleted == false).Count(),
-                  Name = x.UserName,
+                  Name = x.Name,
                 FollowingCount = x.BusinessFollows.Where(bf=> bf.Business.IsDeleted == false).Count(),
                 ReviewCount = x.BusinessReviews.Where(x=> x.IsDeleted == false).Count(),
                 ImageUrl = $"{request.Scheme}://{request.Host}/Images/{x.Image.Trim()}".Trim(),
@@ -301,7 +397,7 @@ namespace Brandsome.BLL.Services
                 GenderId = u.GenderId ?? 0,
                 ImageUrl = $"{request.Scheme}://{request.Host}/Images/{u.Image.Trim()}".Trim(),
                 PhoneNumber = u.PhoneNumber ?? "",
-                UserName = u.UserName ?? "",
+                UserName = u.Name ?? "",
             }).FirstOrDefaultAsync();
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
@@ -334,6 +430,43 @@ namespace Brandsome.BLL.Services
             responseModel.Data = new DataModel { Data = "", Message = "Fcm token refreshed succesfully" };
             return responseModel;
 
+        }
+
+        public async Task<ResponseModel> DeleteAccount(string uid)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            ApplicationUser user = await _userManager.FindByIdAsync(uid);
+            if (user == null)
+            {
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                responseModel.StatusCode = 400;
+                responseModel.ErrorMessage = "User not found";
+                return responseModel;
+            }
+
+            if((bool)user.IsDeleted)
+            {
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                responseModel.StatusCode = 400;
+                responseModel.ErrorMessage = "User not found";
+                return responseModel;
+            }
+
+            user.IsDeleted = true;
+            user.PhoneNumber = user.PhoneNumber + "_DELETED";
+            user.UserName = user.PhoneNumber+Guid.NewGuid().ToString();
+            IdentityResult updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                responseModel.ErrorMessage = updateResult.Errors.Select(e => e.Description).FirstOrDefault();
+                responseModel.StatusCode = 400;
+                responseModel.Data = new DataModel { Data = "", Message = "" };
+                return responseModel;
+            }
+            responseModel.ErrorMessage = "";
+            responseModel.StatusCode = 200;
+            responseModel.Data = new DataModel { Data = "", Message = "Account deleted" };
+            return responseModel;
         }
         //        public async Task<ResponseModel> EmailSignIn(EmailSignIn_VM model)
         //        {

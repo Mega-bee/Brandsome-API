@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Brandsome.BLL.IServices;
 using Brandsome.BLL.Utilities;
+using Brandsome.BLL.Utilities.Logging;
 using Brandsome.BLL.ViewModels;
 using Brandsome.DAL;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +17,7 @@ namespace Brandsome.BLL.Services
     public class HomePageService : BaseBO, IHomePageService
     {
 
-        public HomePageService(IUnitOfWork unit, IMapper mapper, NotificationHelper notificationHelper) : base(unit, mapper, notificationHelper)
+        public HomePageService(IUnitOfWork unit, IMapper mapper, NotificationHelper notificationHelper, ILoggerManager logger) : base(unit, mapper, notificationHelper, logger)
         {
         }
         public async Task<ResponseModel> GetMainLists(HttpRequest request, string uid)
@@ -43,7 +44,7 @@ namespace Brandsome.BLL.Services
                 Id = c.Id,
                 Name = c.Title,
             }).ToListAsync();
-            mainLists.Posts = await _uow.PostRepository.GetAll(x =>  x.IsDeleted == false && x.BusinessCity.Business.IsDeleted == false /*&& x.BusinessCity.IsDeleted == false && x.BusinessService.IsDeleted == false*/).Select(p => new Post_VM
+            mainLists.Posts = await _uow.PostRepository.GetAll(x =>  x.IsDeleted == false && x.BusinessCity.Business.IsDeleted == false && x.BusinessCity.Business.User.IsDeleted == false /*&& x.BusinessCity.IsDeleted == false && x.BusinessService.IsDeleted == false*/).Select(p => new Post_VM
             {
                 Name = p.BusinessCity.Business.BusinessName ?? "",
                 Description = p.Descrption ?? "",
@@ -63,7 +64,7 @@ namespace Brandsome.BLL.Services
                 }).OrderByDescending(p=> p.Id).ToList(),
                  
             }).ToListAsync();
-            mainLists.Businesses = await _uow.BusinessRepository.GetAll().Where(x => x.IsDeleted == false).Select(business => new Business_VM
+            mainLists.Businesses = await _uow.BusinessRepository.GetAll().Where(x => x.IsDeleted == false && x.User.IsDeleted == false).Select(business => new Business_VM
             {
                 Id = business.Id,
                 Cities = business.BusinessCities.Where(bc => bc.IsDeleted == false).Select(bc => new BusinessCity_VM

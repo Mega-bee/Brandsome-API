@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using Brandsome.BLL.IServices;
 using Brandsome.BLL.Utilities;
+using Brandsome.BLL.Utilities.Logging;
 using Brandsome.BLL.ViewModels;
 using Brandsome.DAL;
 using Brandsome.DAL.Models;
 using Brandsome.DAL.Repos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,15 +19,15 @@ namespace Brandsome.BLL.Services
 {
     public class BusinessBL : BaseBO, IBusinessBL
     {
-
-        public BusinessBL(IUnitOfWork unit, IMapper mapper, NotificationHelper notificationHelper) : base(unit, mapper, notificationHelper)
+      
+        public BusinessBL(IUnitOfWork unit, IMapper mapper, NotificationHelper notificationHelper,ILoggerManager logger) : base(unit, mapper, notificationHelper,logger)
         {
         }
 
-        public async Task<ResponseModel> GetBusinsses(List<int> services, string sortBy, HttpRequest request)
+        public async Task<ResponseModel> GetBusinsses(List<int> services, string sortBy, HttpRequest request,string uid)
         {
             ResponseModel responseModel = new ResponseModel();
-            List<Business_VM> businesses = await _uow.BusinessRepository.GetAll().Where(x => x.IsDeleted == false).Select(business => new Business_VM
+            List<Business_VM> businesses = await _uow.BusinessRepository.GetAll().Where(x => x.IsDeleted == false && x.User.IsDeleted == false).Select(business => new Business_VM
             {
                 Id = business.Id,
                 Cities = business.BusinessCities.Where(bc => bc.IsDeleted == false).Select(bc => new BusinessCity_VM
@@ -33,6 +35,7 @@ namespace Brandsome.BLL.Services
                     Id = bc.Id,
                     Name = bc.City.Title
                 }).ToList(),
+                IsFollowed = business.BusinessFollows.Where(bf => bf.UserId == uid).FirstOrDefault() != null,
                 Description = business.Description,
                 Name = business.BusinessName ?? "",
                 Image = $"{request.Scheme}://{request.Host}/Images/{business.Image}",
@@ -79,7 +82,7 @@ namespace Brandsome.BLL.Services
         public async Task<ResponseModel> GetUserBusinesses(string uid,HttpRequest request)
         {
             ResponseModel responseModel = new ResponseModel();
-            List<AccountSettingsBusiness_VM> businesses = await _uow.BusinessRepository.GetAll(b => b.UserId == uid && b.IsDeleted == false).Select(b => new AccountSettingsBusiness_VM
+            List<AccountSettingsBusiness_VM> businesses = await _uow.BusinessRepository.GetAll(b => b.UserId == uid && b.IsDeleted == false && b.User.IsDeleted == false).Select(b => new AccountSettingsBusiness_VM
             {
                 Id = b.Id,
                 Name = b.BusinessName,
@@ -94,13 +97,14 @@ namespace Brandsome.BLL.Services
         public async Task<ResponseModel> GetBusiness(string uid, int businessId, HttpRequest request)
         {
             ResponseModel responseModel = new ResponseModel();
-            BusinessInfo_VM business = await _uow.BusinessRepository.GetAll().Where(x => x.Id == businessId).Select(b => new BusinessInfo_VM
+            BusinessInfo_VM business = await _uow.BusinessRepository.GetAll().Where(x => x.Id == businessId && x.User.IsDeleted == false).Select(b => new BusinessInfo_VM
             {
                 Id = b.Id,
                 Cities = b.BusinessCities.Where(bc => bc.IsDeleted == false).Select(bc => new BusinessCity_VM
                 {
                     Id = (int)bc.CityId,
-                    Name = bc.City.Title ?? ""
+                    Name = bc.City.Title ?? "",
+                     BusinessCityId = (int)bc.Id,
                 }).ToList(),
                  IsFollowed = b.BusinessFollows.Where(bf => bf.UserId == uid).FirstOrDefault() != null,
                 Description = b.Description ?? "",
@@ -130,18 +134,19 @@ namespace Brandsome.BLL.Services
                     //Cities = p.busi
                 }).ToList(),
                 ReviewCount = b.BusinessReviewCount ?? 0,
-                Reviews = b.BusinessReviews.Select(br => new ReviewBase_VM
+                Reviews = b.BusinessReviews.Where(br=> br.IsDeleted == false && br.User.IsDeleted == false).Select(br => new ReviewBase_VM
                 {
                     Description = br.Description ?? "",
                     Id = br.Id,
-                    Name = br.User.UserName ?? "",
+                    Name = br.User.Name ?? "",
                     Image = $"{request.Scheme}://{request.Host}/Uploads/{br.User.Image}",
                      CreatedDate = br.CreatedDate
-                }).OrderBy(br=> br.CreatedDate).ToList(),
-                Services = b.BusinessServices.Select(bs => new BusinessService_VM
+                }).OrderByDescending(br=> br.CreatedDate).ToList(),
+                Services = b.BusinessServices.Where(bs => bs.IsDeleted == false).Select(bs => new BusinessService_VM
                 {
                     Id = (int)bs.ServiceId,
-                    Name = bs.Service.Title ?? ""
+                    Name = bs.Service.Title ?? "",
+                    BusinessServiceId = bs.ServiceId,
                 }).ToList(),
                 IsUserBusiness = uid == b.UserId,
                 Type = b.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Category.Title + "/" + b.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Title,
@@ -158,7 +163,7 @@ namespace Brandsome.BLL.Services
 
             ResponseModel responseModel = new ResponseModel();
             BusinessFollow follow = null;
-            Business business = await _uow.BusinessRepository.GetFirst(x => x.IsDeleted == false && x.Id == businessId);
+            Business business = await _uow.BusinessRepository.GetFirst(x => x.IsDeleted == false && x.Id == businessId && x.User.IsDeleted == false);
             if (business == null)
             {
                 responseModel.Data = new DataModel { Data = "", Message = "" };
@@ -282,7 +287,7 @@ namespace Brandsome.BLL.Services
             ResponseModel responseModel = new ResponseModel();
             BusinessCity businessCity;
             BusinessService businessService;
-            Business currBusiness = await _uow.BusinessRepository.GetByIdWithPredicateAndIncludes(x => x.Id == business.Id, x => x.BusinessServices.Where(bs => bs.IsDeleted == false), x => x.BusinessCities.Where(bc => bc.IsDeleted == false));
+            Business currBusiness = await _uow.BusinessRepository.GetByIdWithPredicateAndIncludes(x => x.Id == business.Id && x.User.IsDeleted == false && x.IsDeleted == false, x => x.BusinessServices.Where(bs => bs.IsDeleted == false), x => x.BusinessCities.Where(bc => bc.IsDeleted == false));
             if (currBusiness == null)
             {
                 responseModel.ErrorMessage = "Business not found";
@@ -418,7 +423,7 @@ namespace Brandsome.BLL.Services
         public async Task<ResponseModel> DeleteBusiness(string uid, int businessId)
         {
             ResponseModel responseModel = new ResponseModel();
-            Business business = await _uow.BusinessRepository.GetAll(x => x.Id == businessId && x.UserId == uid && x.IsDeleted == false).FirstOrDefaultAsync();
+            Business business = await _uow.BusinessRepository.GetAll(x => x.Id == businessId && x.UserId == uid && x.IsDeleted == false && x.User.IsDeleted == false).FirstOrDefaultAsync();
             if (business == null)
             {
                 responseModel.ErrorMessage = "";
@@ -437,7 +442,7 @@ namespace Brandsome.BLL.Services
         public async Task<ResponseModel> RegisterNewPhoneClick(string uid, int businessId)
         {
             ResponseModel responseModel = new ResponseModel();
-            Business business = await _uow.BusinessRepository.GetAll(x => x.Id == businessId).FirstOrDefaultAsync();
+            Business business = await _uow.BusinessRepository.GetAll(x => x.Id == businessId && x.IsDeleted == false && x.User.IsDeleted == false).FirstOrDefaultAsync();
             if (business == null)
             {
                 responseModel.ErrorMessage = "Business not found";
@@ -461,7 +466,7 @@ namespace Brandsome.BLL.Services
         public async Task<ResponseModel> RegisterNewBusinesView(string uid,string imei,int businessId)
         {
             ResponseModel responseModel = new ResponseModel();
-            Business business = await _uow.BusinessRepository.GetAll(x => x.Id == businessId).FirstOrDefaultAsync();
+            Business business = await _uow.BusinessRepository.GetAll(x => x.Id == businessId && x.IsDeleted == false && x.User.IsDeleted == false).FirstOrDefaultAsync();
             if (business == null)
             {
                 responseModel.ErrorMessage = "Business not found";

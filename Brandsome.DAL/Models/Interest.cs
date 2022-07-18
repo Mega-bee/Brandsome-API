@@ -11,16 +11,18 @@ namespace Brandsome.DAL.Models
     {
         [Key]
         public int Id { get; set; }
-        public int? DevideId { get; set; }
+        [StringLength(450)]
+        public string UserId { get; set; }
         public int? ServiceId { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime? CreatedDate { get; set; }
+        public bool? IsDeleted { get; set; }
 
-        [ForeignKey("DevideId")]
-        [InverseProperty("Interests")]
-        public virtual Device Devide { get; set; }
         [ForeignKey("ServiceId")]
         [InverseProperty("Interests")]
         public virtual Service Service { get; set; }
+        [ForeignKey("UserId")]
+        [InverseProperty("Interests")]
+        public virtual AspNetUser User { get; set; }
     }
 }

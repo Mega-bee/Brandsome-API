@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Brandsome.BLL.IServices;
 using Brandsome.BLL.Utilities;
+using Brandsome.BLL.Utilities.Logging;
 using Brandsome.BLL.ViewModels;
 using Brandsome.DAL;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,7 @@ namespace Brandsome.BLL.Services
 {
     public class GeneralBL : BaseBO, IGeneralBL
     {
-        public GeneralBL(IUnitOfWork unit, IMapper mapper, NotificationHelper notificationHelper) : base(unit, mapper, notificationHelper)
+        public GeneralBL(IUnitOfWork unit, IMapper mapper, NotificationHelper notificationHelper, ILoggerManager logger) : base(unit, mapper, notificationHelper, logger)
         {
         }
 

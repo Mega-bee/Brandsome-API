@@ -1,12 +1,15 @@
-﻿using Brandsome.DAL.Models;
+﻿using Brandsome.BLL.ViewModels;
+using Brandsome.DAL.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IO;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -79,11 +82,12 @@ namespace Brandsome.BLL.Utilities.CustomMiddleWare
             }
             catch (Exception ex)
             {
-
                 throw;
+                //await HandleExceptionAsync(context);
             }
 
         }
+
 
         private static async Task<string> FormatRequest(HttpRequest request)
         {

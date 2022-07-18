@@ -58,7 +58,7 @@ namespace Brandsome.BLL.Hubs
         public async Task Search(string searchTerm)
         {
             Search_VM search = new Search_VM();
-            search.Businesses = await _uow.BusinessRepository.GetAll(b=> b.IsDeleted == false && b.BusinessName.Contains(searchTerm)).Take(8).Select(b=> new FollowedBusiness_VM
+            search.Businesses = await _uow.BusinessRepository.GetAll(b=> b.IsDeleted == false && b.User.IsDeleted == false && b.BusinessName.Contains(searchTerm)).Take(8).Select(b=> new FollowedBusiness_VM
             {
                  Id = b.Id,
                   Image = b.Image,
@@ -74,7 +74,8 @@ namespace Brandsome.BLL.Hubs
             {
                 Id = s.Id,
                 Image = s.Image,
-                Name = s.Title
+                Name = s.Title,
+                 Category = s.SubCategory.Category.Title + "/" + s.SubCategory.Title,
             }).ToListAsync();
              await Clients.Client(Context.ConnectionId).UpdateSearchList(search);
         }

@@ -16,6 +16,7 @@ namespace Brandsome.BLL.IServices
 
         Task<ResponseModel> ResendOtp(string phoneNumber);
         Task<ResponseModel> RefreshFcmToken(string uid, string token);
+        Task<ResponseModel> DeleteAccount(string uid);
 
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace Brandsome.BLL.ViewModels
     }
     public partial class Service_VM : BaseInterests_VM
     {
-
+        public string Category { get; set; } = "";
     }
 
     public partial class Category_VM : BaseInterests_VM
@@ -31,5 +32,17 @@ namespace Brandsome.BLL.ViewModels
     {
         [JsonProperty(Order = 4)]
         public List<Service_VM> Services { set; get; }
+    }
+
+    public partial class ChooseInterests_VM
+    {
+        [Required]
+        public List<ChosenInterest_VM> Interests { get; set; }
+    }
+
+    public partial class ChosenInterest_VM
+    {
+        public int ServiceId { get; set; }
+        public bool IsSelected { get; set; }
     }
 }

@@ -11,6 +11,7 @@ using System.Security.Claims;
 
 namespace Brandsome.API.Controllers
 {
+    [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
 
     public class AccountsController : APIBaseController
     {
@@ -21,17 +22,21 @@ namespace Brandsome.API.Controllers
             _auth = auth;
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> RequestOtp([FromForm] string phoneNumber,[FromForm] string username)
         {
             return Ok(await _auth.RequestOtp(phoneNumber, username));
         }  
         
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> ResendOtp([FromForm] string phoneNumber)
         {
             return Ok(await _auth.ResendOtp(phoneNumber));
         }
+
+        [AllowAnonymous]
 
         [HttpPost]
         public async Task<IActionResult> VerifyOtp([FromForm] string phoneNumber, [FromForm] string otp)
@@ -39,7 +44,6 @@ namespace Brandsome.API.Controllers
             return Ok(await _auth.VerifyOtp(phoneNumber, otp));
         }
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpGet]
         public async Task<IActionResult> GetAccountSetings()
         {
@@ -47,7 +51,6 @@ namespace Brandsome.API.Controllers
             return Ok(await _auth.GetAccountSettings(uid,Request));
         }
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpGet]
         public async Task<IActionResult> GetProfile()
         {
@@ -55,7 +58,6 @@ namespace Brandsome.API.Controllers
             return Ok(await _auth.GetProfile(uid, Request));
         }
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPut]
         public async Task<IActionResult> UpdateProfile([FromForm] CompleteProfile_VM profile)
         {
@@ -64,14 +66,12 @@ namespace Brandsome.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         public async Task<IActionResult> GetFollowedBusinessses()
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             return Ok(await _auth.GetFollowedBusinesses(uid,Request));
         }
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpPut]
         public async Task<IActionResult> RefreshFcmToken([FromForm] string token)
         {
@@ -79,7 +79,12 @@ namespace Brandsome.API.Controllers
             return Ok(await _auth.RefreshFcmToken(uid, token));
         }
 
-
+        [HttpPut]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return Ok(await _auth.DeleteAccount(uid));
+        }
 
     }
 

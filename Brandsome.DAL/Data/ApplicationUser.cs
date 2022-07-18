@@ -17,5 +17,7 @@ namespace Brandsome.DAL.Data
         public DateTime CreatedDate { get; set; }
         public string Otp { get; set; }
         public int? GenderId { get; set; }
+        public bool? IsDeleted { get; set; }
+        public string Name { get; set; }
     }
 }

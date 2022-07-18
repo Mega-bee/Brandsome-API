@@ -60,6 +60,7 @@ namespace Brandsome.BLL
             _services.AddScoped<IConverters,Converters>();
             _services.AddScoped<ValidationFilterAttribute>();
             _services.AddScoped<RecyclableMemoryStreamManager>();
+            _services.AddScoped<AccountValidityFilterAttribute>();
 
             var configurationMapper = new MapperConfiguration(option =>
             {
