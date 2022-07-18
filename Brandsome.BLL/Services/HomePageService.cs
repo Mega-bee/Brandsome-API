@@ -35,7 +35,8 @@ namespace Brandsome.BLL.Services
                     Services = sc.Services.Where(s => s.IsDeleted == false).Select(s => new Service_VM
                     {
                         Id = s.Id,
-                        Name = s.Title
+                        Name = s.Title,
+                        IsUserInterest = s.Interests.ToList().Any(i=> i.UserId == uid)                    
                     }).ToList(),
                 }).ToList(),
             }).ToListAsync();

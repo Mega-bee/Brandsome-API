@@ -20,6 +20,7 @@ namespace Brandsome.BLL.ViewModels
     public partial class Service_VM : BaseInterests_VM
     {
         public string Category { get; set; } = "";
+        public bool? IsUserInterest { get; set; } = false;
     }
 
     public partial class Category_VM : BaseInterests_VM

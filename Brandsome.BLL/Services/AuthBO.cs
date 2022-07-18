@@ -20,6 +20,8 @@ using Brandsome.DAL.Models;
 using Brandsome.DAL;
 using Brandsome.DAL.Data;
 using Brandsome.BLL.Utilities.Logging;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Brandsome.BLL.Services
 {
@@ -81,9 +83,23 @@ namespace Brandsome.BLL.Services
                     await _userManager.UpdateAsync(appUser);
                     content = $"Your pin is {Otp}";
                     Helpers.SendSMS(phoneNumber, content);
+                    var conneciton = (SqlConnection)_context.Database.GetDbConnection();
+                    string procedureName = AppSetting.InsertAllServicesIntoNewUserProcedure;
+                    SqlCommand command = new SqlCommand(procedureName, conneciton);
+                    command.CommandType = CommandType.StoredProcedure;
+                    SqlParameter UserId = new SqlParameter("@UserId ", appUser.Id);
+                    command.Parameters.Add(UserId);
+                    conneciton.Open();
+
+
+
+                    command.ExecuteNonQuery();
+                    //DataTable dt = new DataTable();
+                    conneciton.Close();
                     responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number" };
                     responseModel.StatusCode = 200;
                     responseModel.ErrorMessage = "";
+
                     return responseModel;
                 }
                 else

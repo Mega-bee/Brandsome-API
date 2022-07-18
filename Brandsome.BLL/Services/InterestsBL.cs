@@ -160,16 +160,29 @@ namespace Brandsome.BLL.Services
             //}
 
             var conneciton = (SqlConnection)_context.Database.GetDbConnection();
-            string procedureName = "DeleteAllInterestsFromUser";
-            SqlCommand command = new SqlCommand(procedureName, conneciton);
-            command.CommandType = CommandType.StoredProcedure;
+            string procedure1Name = AppSetting.DeleteInterestsFromUserProcedure;
+            string procedure2Name = AppSetting.InsertUpdatedInterestsIntoUserProcedure;
+            SqlCommand command1 = new SqlCommand(procedure1Name, conneciton);
+            SqlCommand command2 = new SqlCommand(procedure2Name, conneciton);
+            command1.CommandType = CommandType.StoredProcedure;
+            command2.CommandType = CommandType.StoredProcedure;
             SqlParameter UserId = new SqlParameter("@UserId ", uid);
-            command.Parameters.Add(UserId);
+            var dt = new DataTable();
+            dt.Columns.Add("ServiceId",typeof(int));
+            foreach (var item in services)
+            {
+                dt.Rows.Add(item);
+            }
+            //SqlParameter serviceIds = new SqlParameter("@ServiceIdsList", dt);
+        
+            command1.Parameters.Add(UserId);
             conneciton.Open();
-
-     
-          
-            command.ExecuteNonQuery();
+            command1.ExecuteNonQuery();
+            command1.Parameters.Clear();
+            var command2Param = command2.Parameters.AddWithValue("@ServiceIdsList", dt);
+            command2Param.SqlDbType = SqlDbType.Structured;
+            command2.Parameters.Add(UserId);
+            command2.ExecuteNonQuery();
             //DataTable dt = new DataTable();
             conneciton.Close();
 
