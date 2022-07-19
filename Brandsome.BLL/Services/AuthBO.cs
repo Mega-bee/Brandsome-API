@@ -118,14 +118,22 @@ namespace Brandsome.BLL.Services
             responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number" };
             return responseModel;
         }
-        public async Task<ResponseModel> ResendOtp(string phoneNumber)
+        public async Task<ResponseModel> ResendOtp(string phoneNumber,string uid)
         {
             // ApplicationUser appUser = null;
             ResponseModel responseModel = new ResponseModel();
             string Otp = "";
             string content = "";
             await CheckRoles();
-            string userOtp = await _uow.UserRepository.GetAll().Where(x => phoneNumber == x.PhoneNumber).Select(x => x.Otp).FirstOrDefaultAsync();
+            string userOtp = "";
+            if(!string.IsNullOrEmpty(uid))
+            {
+                userOtp = await _uow.UserRepository.GetAll().Where(x => uid == x.Id).Select(x => x.Otp).FirstOrDefaultAsync();
+            } else
+            {
+                userOtp = await _uow.UserRepository.GetAll().Where(x => phoneNumber == x.PhoneNumber).Select(x => x.Otp).FirstOrDefaultAsync();
+            }
+             
 
             if (userOtp != null)
             {
@@ -258,11 +266,20 @@ namespace Brandsome.BLL.Services
             return responseModel;
         }
         
-        public async Task<ResponseModel> VerifyOtp(string phoneNumber, string otp)
+        public async Task<ResponseModel> VerifyOtp(string phoneNumber, string otp,string uid)
         {
             ResponseModel responseModel = new ResponseModel();
             ApplicationUser appUser = new ApplicationUser();
-            var user = await _uow.UserRepository.GetAll().Where(x => x.PhoneNumber == phoneNumber).Select(x => new { x.Id, x.Otp }).FirstOrDefaultAsync();
+            var user = new {Id = "",Otp = ""};
+            if(!string.IsNullOrEmpty(uid))
+            {
+                user = await _uow.UserRepository.GetAll().Where(x => x.Id == uid).Select(x => new { x.Id, x.Otp }).FirstOrDefaultAsync();
+
+            } else
+            {
+                user = await _uow.UserRepository.GetAll().Where(x => x.PhoneNumber == phoneNumber).Select(x => new { x.Id, x.Otp }).FirstOrDefaultAsync();
+            }
+            
             if (user == null)
             {
                 responseModel.Data = new DataModel { Data = "", Message = "" };
@@ -278,10 +295,16 @@ namespace Brandsome.BLL.Services
                     await _userManager.UpdateAsync(appUser);
                 }
                 //await _signInManager.SignInAsync(appUser, false);
-                var roles = await _userManager.GetRolesAsync(appUser);
-                var claims = Tools.GenerateClaims(appUser, roles);
-                string JwtToken = Tools.GenerateJWT(claims);
-                responseModel.Data = new DataModel { Data = JwtToken, Message = "Phone number verified sucessfully" };
+                object data = "";
+                if(string.IsNullOrEmpty(uid))
+                {
+                    var roles = await _userManager.GetRolesAsync(appUser);
+                    var claims = Tools.GenerateClaims(appUser, roles);
+                    string JwtToken = Tools.GenerateJWT(claims);
+                    data = JwtToken;
+                }
+               
+                responseModel.Data = new DataModel { Data = data, Message = "Phone number verified sucessfully" };
                 responseModel.ErrorMessage = "";
                 responseModel.StatusCode = 200;
                 return responseModel;

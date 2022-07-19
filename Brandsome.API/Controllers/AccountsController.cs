@@ -33,7 +33,13 @@ namespace Brandsome.API.Controllers
         [HttpPost]
         public async Task<IActionResult> ResendOtp([FromForm] string phoneNumber)
         {
-            return Ok(await _auth.ResendOtp(phoneNumber));
+            string uid = null;
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity.IsAuthenticated)
+            {
+                uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            }
+            return Ok(await _auth.ResendOtp(phoneNumber,uid));
         }
 
         [AllowAnonymous]
@@ -41,7 +47,13 @@ namespace Brandsome.API.Controllers
         [HttpPost]
         public async Task<IActionResult> VerifyOtp([FromForm] string phoneNumber, [FromForm] string otp)
         {
-            return Ok(await _auth.VerifyOtp(phoneNumber, otp));
+            string uid = null;
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity.IsAuthenticated)
+            {
+                uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            }
+            return Ok(await _auth.VerifyOtp(phoneNumber, otp,uid));
         }
 
         [HttpGet]
