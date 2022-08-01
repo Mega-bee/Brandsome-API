@@ -5,6 +5,7 @@ using Brandsome.BLL.Utilities.Logging;
 using Brandsome.BLL.ViewModels;
 using Brandsome.DAL;
 using Brandsome.DAL.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -27,13 +28,26 @@ namespace Brandsome.BLL.Services
             _context = context;
         }
 
-        public async Task<ResponseModel> GetCategories()
+        public async Task<ResponseModel> GetCategories(HttpRequest request, string uid)
         {
             ResponseModel responseModel = new ResponseModel();
-            List<Category_VM> categories = await _uow.CategoryRepository.GetAll(x => x.IsDeleted == false).Select(x => new Category_VM
+
+            List<Category_VM> categories = await _uow.CategoryRepository.GetAll(x => x.IsDeleted == false).Select(c => new Category_VM
             {
-                Id = x.Id,
-                Name = x.Title
+                Id = c.Id,
+                Name = c.Title,
+                SubCategories = c.SubCategories.Where(sc => sc.IsDeleted == false).Select(sc => new SubCategory_VM
+                {
+                    Id = sc.Id,
+                    Name = sc.Title,
+                    Services = sc.Services.Where(s => s.IsDeleted == false).Select(s => new Service_VM
+                    {
+                        Id = s.Id,
+                        Name = s.Title,
+                        Image = $"{request.Scheme}://{request.Host}/Images/{s.Image}",
+                        IsUserInterest = s.Interests.ToList().Any(i => i.UserId == uid)
+                    }).ToList(),
+                }).ToList(),
             }).ToListAsync();
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;

@@ -19,5 +19,6 @@ namespace Brandsome.DAL.Data
         public int? GenderId { get; set; }
         public bool? IsDeleted { get; set; }
         public string Name { get; set; }
+        public string CountryCode { get; set; }
     }
 }

@@ -9,7 +9,7 @@ namespace Brandsome.BLL.ViewModels
     public partial class SplashScreen_VM
     {
         public List<Category_VM> Categories { get; set; }
-        public List<Category_VM> UserInterests { get; set; }
+        public List<UserCategory_VM> UserInterests { get; set; }
         public List<City_VM> Cities { get; set; }
         public List<Post_VM> Posts { get; set; }
         public List<Business_VM> Businesses { get; set; }

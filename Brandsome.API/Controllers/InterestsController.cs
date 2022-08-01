@@ -18,10 +18,18 @@ namespace Brandsome.API.Controllers
             _interestsBL = interestsBL;
         }
 
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
-            return Ok(await _interestsBL.GetCategories());
+            string uid = null;
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity.IsAuthenticated)
+            {
+                uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            }
+            return Ok(await _interestsBL.GetCategories(Request,uid));
         }
         [HttpGet("{categoryId}")]
         public async Task<IActionResult> GetSubcategories([FromRoute] int categoryId)
@@ -42,7 +50,7 @@ namespace Brandsome.API.Controllers
         }
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
-        [HttpPost]
+        [HttpPut]
         public async Task<IActionResult> SetUserInterests([FromForm] List<int> services)
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;

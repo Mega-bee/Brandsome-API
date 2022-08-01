@@ -24,14 +24,14 @@ namespace Brandsome.API.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> RequestOtp([FromForm] string phoneNumber,[FromForm] string username)
+        public async Task<IActionResult> RequestOtp([FromForm] string phoneNumber,[FromForm] string countryCode,[FromForm] string username)
         {
-            return Ok(await _auth.RequestOtp(phoneNumber, username));
+            return Ok(await _auth.RequestOtp(phoneNumber,countryCode, username));
         }  
         
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> ResendOtp([FromForm] string phoneNumber)
+        public async Task<IActionResult> ResendOtp([FromForm] string phoneNumber, [FromForm] string countryCode)
         {
             string uid = null;
             var identity = HttpContext.User.Identity as ClaimsIdentity;
@@ -39,7 +39,7 @@ namespace Brandsome.API.Controllers
             {
                 uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             }
-            return Ok(await _auth.ResendOtp(phoneNumber,uid));
+            return Ok(await _auth.ResendOtp(phoneNumber,countryCode,uid));
         }
 
         [AllowAnonymous]

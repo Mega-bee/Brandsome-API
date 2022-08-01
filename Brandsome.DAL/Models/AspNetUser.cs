@@ -31,8 +31,6 @@ namespace Brandsome.DAL.Models
         [StringLength(256)]
         public string UserName { get; set; }
         [StringLength(256)]
-        public string Name { get; set; }
-        [StringLength(256)]
         public string NormalizedUserName { get; set; }
         [StringLength(256)]
         public string Email { get; set; }
@@ -63,6 +61,10 @@ namespace Brandsome.DAL.Models
         [StringLength(255)]
         public string FcmToken { get; set; }
         public bool? IsDeleted { get; set; }
+        [StringLength(256)]
+        public string Name { get; set; }
+        [StringLength(5)]
+        public string CountryCode { get; set; }
 
         [ForeignKey("GenderId")]
         [InverseProperty("AspNetUsers")]

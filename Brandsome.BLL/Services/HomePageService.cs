@@ -22,6 +22,7 @@ namespace Brandsome.BLL.Services
         }
         public async Task<ResponseModel> GetMainLists(HttpRequest request, string uid)
         {
+            bool isAuthenticated = !string.IsNullOrEmpty(uid);
             ResponseModel responseModel = new ResponseModel();
             SplashScreen_VM mainLists = new SplashScreen_VM();
             mainLists.Categories = await _uow.CategoryRepository.GetAll(x => x.IsDeleted == false).Select(c => new Category_VM
@@ -36,16 +37,28 @@ namespace Brandsome.BLL.Services
                     {
                         Id = s.Id,
                         Name = s.Title,
-                        IsUserInterest = s.Interests.ToList().Any(i=> i.UserId == uid)                    
+                        Image = $"{request.Scheme}://{request.Host}/Images/{s.Image}",
+                        IsUserInterest = s.Interests.ToList().Any(i => i.UserId == uid)
                     }).ToList(),
                 }).ToList(),
+            }).ToListAsync();
+            mainLists.UserInterests = await _uow.CategoryRepository.GetAll(x => x.IsDeleted == false).Select(c => new UserCategory_VM
+            {
+                Id = c.Id,
+                Name = c.Title,
+                Services = c.SubCategories.Where(sc => sc.IsDeleted == false).SelectMany(sc => sc.Services.Where(s => s.IsDeleted == false && isAuthenticated ?  s.Interests.Any(i => i.UserId == uid) : true)).Select(s => new Service_VM
+                {
+                    Id = s.Id,
+                    Name = s.Title,
+                    Image = $"{request.Scheme}://{request.Host}/Images/{s.Image}",
+                }).ToList()
             }).ToListAsync();
             mainLists.Cities = await _uow.CityRepository.GetAll(x => x.IsDeleted == false).Select(c => new City_VM
             {
                 Id = c.Id,
                 Name = c.Title,
             }).ToListAsync();
-            mainLists.Posts = await _uow.PostRepository.GetAll(x =>  x.IsDeleted == false && x.BusinessCity.Business.IsDeleted == false && x.BusinessCity.Business.User.IsDeleted == false /*&& x.BusinessCity.IsDeleted == false && x.BusinessService.IsDeleted == false*/).Select(p => new Post_VM
+            mainLists.Posts = await _uow.PostRepository.GetAll(x => x.IsDeleted == false && x.BusinessCity.Business.IsDeleted == false && x.BusinessCity.Business.User.IsDeleted == false /*&& x.BusinessCity.IsDeleted == false && x.BusinessService.IsDeleted == false*/).Select(p => new Post_VM
             {
                 Name = p.BusinessCity.Business.BusinessName ?? "",
                 Description = p.Descrption ?? "",
@@ -62,8 +75,8 @@ namespace Brandsome.BLL.Services
                     MediaTypeId = pm.PostTypeId ?? 0,
                     MediaTypeName = pm.PostType.Title ?? "",
 
-                }).OrderByDescending(p=> p.Id).ToList(),
-                 
+                }).OrderByDescending(p => p.Id).ToList(),
+
             }).ToListAsync();
             mainLists.Businesses = await _uow.BusinessRepository.GetAll().Where(x => x.IsDeleted == false && x.User.IsDeleted == false).Select(business => new Business_VM
             {

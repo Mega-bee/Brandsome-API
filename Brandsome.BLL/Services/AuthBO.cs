@@ -51,7 +51,7 @@ namespace Brandsome.BLL.Services
                 await _roleManager.CreateAsync(new IdentityRole { Name = AppSetting.AdminRole, NormalizedName = AppSetting.AdminRoleNormalized });
             }
         }
-        public async Task<ResponseModel> RequestOtp(string phoneNumber, string userName)
+        public async Task<ResponseModel> RequestOtp(string phoneNumber,string countryCode, string userName)
         {
             ApplicationUser appUser = null;
             ResponseModel responseModel = new ResponseModel();
@@ -72,7 +72,8 @@ namespace Brandsome.BLL.Services
                     Name = userName,
                     Balance = 0,
                     Image = "user-placeholder.png",
-                    IsDeleted = false
+                    IsDeleted = false,
+                     CountryCode = countryCode,
                 };
                 IdentityResult res = await _userManager.CreateAsync(appUser);
                 if (res.Succeeded)
@@ -90,9 +91,6 @@ namespace Brandsome.BLL.Services
                     SqlParameter UserId = new SqlParameter("@UserId ", appUser.Id);
                     command.Parameters.Add(UserId);
                     conneciton.Open();
-
-
-
                     command.ExecuteNonQuery();
                     //DataTable dt = new DataTable();
                     conneciton.Close();
@@ -118,7 +116,7 @@ namespace Brandsome.BLL.Services
             responseModel.Data = new DataModel { Data = "", Message = "OTP has been sent to your phone number" };
             return responseModel;
         }
-        public async Task<ResponseModel> ResendOtp(string phoneNumber,string uid)
+        public async Task<ResponseModel> ResendOtp(string phoneNumber,string countryCode,string uid)
         {
             // ApplicationUser appUser = null;
             ResponseModel responseModel = new ResponseModel();
@@ -128,6 +126,14 @@ namespace Brandsome.BLL.Services
             string userOtp = "";
             if(!string.IsNullOrEmpty(uid))
             {
+                var phoneNumberUser = await _uow.UserRepository.GetAll().Where(x => phoneNumber == x.PhoneNumber).FirstOrDefaultAsync();
+                if(phoneNumberUser != null)
+                {
+                    responseModel.StatusCode = 400;
+                    responseModel.ErrorMessage = "There is another account associated with the new phone number.";
+                    responseModel.Data = new DataModel { Data = "", Message = "" };
+                    return responseModel;
+                }
                 userOtp = await _uow.UserRepository.GetAll().Where(x => uid == x.Id).Select(x => x.Otp).FirstOrDefaultAsync();
             } else
             {
@@ -266,7 +272,7 @@ namespace Brandsome.BLL.Services
             return responseModel;
         }
         
-        public async Task<ResponseModel> VerifyOtp(string phoneNumber, string otp,string uid)
+        public async Task<ResponseModel> VerifyOtp(string phoneNumber,string otp,string uid)
         {
             ResponseModel responseModel = new ResponseModel();
             ApplicationUser appUser = new ApplicationUser();
@@ -285,6 +291,7 @@ namespace Brandsome.BLL.Services
                 responseModel.Data = new DataModel { Data = "", Message = "" };
                 responseModel.StatusCode = 400;
                 responseModel.ErrorMessage = "User not found";
+                return responseModel;
             }
             if (user.Otp == otp)
             {
@@ -337,7 +344,7 @@ namespace Brandsome.BLL.Services
             user.PhoneNumber = profile.PhoneNumber;
             user.UserName = profile.PhoneNumber;
             user.Name = profile.Username;
-
+            user.CountryCode = profile.CountryCode;
             IFormFile file = profile.ImageFile;
             if (file != null)
             {
@@ -365,6 +372,7 @@ namespace Brandsome.BLL.Services
                 UserName = p.Name ?? "",
                 GenderId = p.GenderId ?? 0,
                 BirthDate = p.DateOfBirth.ToString() ?? "",
+                 CountryCode = p.CountryCode ?? ""
             }).FirstOrDefaultAsync();
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
@@ -437,6 +445,7 @@ namespace Brandsome.BLL.Services
                 ImageUrl = $"{request.Scheme}://{request.Host}/Images/{u.Image.Trim()}".Trim(),
                 PhoneNumber = u.PhoneNumber ?? "",
                 UserName = u.Name ?? "",
+                  CountryCode = u.CountryCode ?? ""
             }).FirstOrDefaultAsync();
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;

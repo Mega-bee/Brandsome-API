@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <Folder Include="logs\" />
-    <Folder Include="wwwroot\Images\" />
     <Folder Include="wwwroot\Posts\Media\" />
   </ItemGroup>
 

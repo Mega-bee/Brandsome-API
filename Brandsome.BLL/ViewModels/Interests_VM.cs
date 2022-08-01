@@ -46,4 +46,9 @@ namespace Brandsome.BLL.ViewModels
         public int ServiceId { get; set; }
         public bool IsSelected { get; set; }
     }
+
+    public partial class UserCategory_VM : BaseInterests_VM
+    {
+        public List<Service_VM> Services { get; set; }
+    }
 }

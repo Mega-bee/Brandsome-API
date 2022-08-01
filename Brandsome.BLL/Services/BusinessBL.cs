@@ -82,12 +82,30 @@ namespace Brandsome.BLL.Services
         public async Task<ResponseModel> GetUserBusinesses(string uid,HttpRequest request)
         {
             ResponseModel responseModel = new ResponseModel();
-            List<AccountSettingsBusiness_VM> businesses = await _uow.BusinessRepository.GetAll(b => b.UserId == uid && b.IsDeleted == false && b.User.IsDeleted == false).Select(b => new AccountSettingsBusiness_VM
+            List<Business_VM> businesses = await _uow.BusinessRepository.GetAll().Where(x => x.IsDeleted == false && x.UserId == uid &&  x.User.IsDeleted == false).Select(business => new Business_VM
             {
-                Id = b.Id,
-                Name = b.BusinessName,
-                Image = $"{request.Scheme}://{request.Host}/Images/{b.Image.Trim()}".Trim(),
-            }).ToListAsync();
+                Id = business.Id,
+                Cities = business.BusinessCities.Where(bc => bc.IsDeleted == false).Select(bc => new BusinessCity_VM
+                {
+                    Id = (int)bc.CityId,
+                    Name = bc.City.Title ?? "",
+                    BusinessCityId = (int)bc.Id,
+                }).ToList(),
+                IsFollowed = business.BusinessFollows.Where(bf => bf.UserId == uid).FirstOrDefault() != null,
+                Description = business.Description,
+                Name = business.BusinessName ?? "",
+                Image = $"{request.Scheme}://{request.Host}/Images/{business.Image}",
+                PostCount = business.BusinessPostCount ?? 0,
+                ReviewCount = business.BusinessReviewCount ?? 0,
+                ViewCount = business.BusinessViewCount ?? 0,
+                FollowCount = business.BusinessFollowCount ?? 0,
+                Services = business.BusinessServices.Where(bs => bs.IsDeleted == false).Select(bs => new BusinessService_VM
+                {
+                    Id = (int)bs.ServiceId,
+                    Name = bs.Service.Title ?? "",
+                    BusinessServiceId = bs.Id,
+                }).ToList()
+            }).OrderByDescending(x => x.Id).ToListAsync();
             responseModel.Data = new DataModel { Data = businesses, Message = "" };
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
@@ -113,7 +131,7 @@ namespace Brandsome.BLL.Services
                 Image = $"{request.Scheme}://{request.Host}/Images/{b.Image}",
                 PostCount = b.BusinessPostCount ?? 0,
                 Name = b.BusinessName ?? "",
-                Posts = b.BusinessServices.SelectMany(bs => bs.Posts.Where(p => p.IsDeleted == false && p.BusinessCity.IsDeleted == false && p.BusinessService.IsDeleted == false)).Select(p => new Post_VM
+                Posts = b.BusinessServices.SelectMany(bs => bs.Posts.Where(p => p.IsDeleted == false)).Select(p => new Post_VM
                 {
                     Name = b.BusinessName ?? "",
                     Description = p.Descrption ?? "",
@@ -146,7 +164,7 @@ namespace Brandsome.BLL.Services
                 {
                     Id = (int)bs.ServiceId,
                     Name = bs.Service.Title ?? "",
-                    BusinessServiceId = bs.ServiceId,
+                    BusinessServiceId = bs.Id,
                 }).ToList(),
                 IsUserBusiness = uid == b.UserId,
                 Type = b.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Category.Title + "/" + b.BusinessServices.Where(bs => bs.IsDeleted == false).First().Service.SubCategory.Title,

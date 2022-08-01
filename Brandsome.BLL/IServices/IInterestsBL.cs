@@ -7,7 +7,7 @@ namespace Brandsome.BLL.IServices
 {
     public interface IInterestsBL
     {
-        Task<ResponseModel> GetCategories();
+        Task<ResponseModel> GetCategories(HttpRequest request, string uid);
         Task<ResponseModel> GetServices(int subcategoryId);
         Task<ResponseModel> GetSubCategories(int categoryId);
 
