@@ -112,6 +112,12 @@ namespace Brandsome.DAL.Repos
             return query;
             //return includes.Aggregate(query, (current, includeProperty) => current.Include(includeProperty)).SingleOrDefault(predicate);
         }
+        public async Task<T> GetFirst(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+        {
+            var query = await GetAll().Where(predicate).FirstOrDefaultAsync();
+            return query;
+            //return includes.Aggregate(query, (current, includeProperty) => current.Include(includeProperty)).SingleOrDefault(predicate);
+        }
 
 
         public T GetByIdWithPredicateAndIncludesString(Expression<Func<T, bool>> predicate, string[] includes)

@@ -180,15 +180,19 @@ namespace Brandsome.BLL.Services
         {
 
             ResponseModel responseModel = new ResponseModel();
+            NotificationModel notification = new NotificationModel();
+            string fcmToken = "";
             BusinessFollow follow = null;
-            Business business = await _uow.BusinessRepository.GetFirst(x => x.IsDeleted == false && x.Id == businessId && x.User.IsDeleted == false);
-            if (business == null)
+            bool businessExists =  _uow.BusinessRepository.CheckIfExists(x => x.IsDeleted == false && x.Id == businessId && x.User.IsDeleted == false);
+            if (!businessExists)
             {
                 responseModel.Data = new DataModel { Data = "", Message = "" };
                 responseModel.ErrorMessage = "Business not found";
                 responseModel.StatusCode = 404;
                 return responseModel;
             }
+            fcmToken = await _uow.BusinessRepository.GetAll(x=> x.Id== businessId).Select(x=> x.User.FcmToken).FirstOrDefaultAsync();
+            
 
             BusinessFollowLog followLog = new BusinessFollowLog();
             followLog.BusinessId = businessId;
@@ -197,7 +201,6 @@ namespace Brandsome.BLL.Services
             followLog.CreatedDate = DateTime.UtcNow;
             
             await _uow.BusinessFollowLogRepository.Create(followLog);
-
              follow  = await _uow.BusinessFollowRepository.GetFirst(f=>f.BusinessId == businessId && f.UserId == uid && f.IsDeleted == false);
             if (follow == null )
             {
@@ -207,6 +210,15 @@ namespace Brandsome.BLL.Services
                 follow.UserId = uid;
                 follow.BusinessId = businessId; 
                 await _uow.BusinessFollowRepository.Create(follow);
+                string userName = _uow.UserRepository.GetAll(x => x.Id == uid).Select(x => x.Name).FirstOrDefault();
+
+                if (!string.IsNullOrEmpty(fcmToken))
+                {
+                    notification.DeviceId = fcmToken;
+                    notification.Title = Constants.BusinessFollowNotificationTitle;
+                    notification.Body = userName + Constants.BusinessFollowNotificationBody;
+                    _notificationHelper.SendNotification(notification);
+                }
             }
             else
             {

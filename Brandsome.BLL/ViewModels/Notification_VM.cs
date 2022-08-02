@@ -12,11 +12,5 @@ namespace Brandsome.BLL.ViewModels
         public string Title { get; set; }
         public string Body { get; set; }
 
-        public int PatientId { get; set; }
-        public string FirstName { get; set; }
-        public string MiddleName { get; set; }
-        public string LastName { get; set; }
-
-
     }
 }

@@ -105,9 +105,11 @@ namespace Brandsome.BLL.Services
             return responseModel;
         }
 
-        public async Task<ResponseModel> LikePost(string uid,int postId,bool isLike)
+        public async Task<ResponseModel> LikePost(string uid, int postId, bool isLike)
         {
             ResponseModel responseModel = new ResponseModel();
+            NotificationModel notification = new NotificationModel();
+            string fcmToken = "";
 
             Post currPost = await _uow.PostRepository.GetFirst(p => p.Id == postId && p.IsDeleted == false);
             PostLike postLike = null;
@@ -118,6 +120,7 @@ namespace Brandsome.BLL.Services
                 responseModel.Data = new DataModel { Data = "", Message = "" };
                 return responseModel;
             }
+            fcmToken = await _uow.PostRepository.GetAll(p=> p.Id == postId && p.IsDeleted == false).Select(p=> p.BusinessCity.Business.User.FcmToken).FirstOrDefaultAsync();
             PostLikeLog postLikeLog = new PostLikeLog()
             {
                 CreatedDate = DateTime.UtcNow,
@@ -127,17 +130,26 @@ namespace Brandsome.BLL.Services
             };
             await _uow.PostLikeLogRepository.Create(postLikeLog);
 
-             postLike = await _uow.PostLikeRepository.GetFirst(p => p.PostId == postId && p.IsDeleted == false && p.UserId == uid);
-            
+            postLike = await _uow.PostLikeRepository.GetFirst(p => p.PostId == postId && p.IsDeleted == false && p.UserId == uid);
+
 
             if (postLike == null)
             {
-                 postLike = new PostLike();
+                postLike = new PostLike();
                 postLike.PostId = postId;
                 postLike.IsDeleted = false;
                 postLike.UserId = uid;
-                postLike.CreatedDate= DateTime.UtcNow;
-                await _uow.PostLikeRepository.Create(postLike); 
+                postLike.CreatedDate = DateTime.UtcNow;
+                await _uow.PostLikeRepository.Create(postLike);
+                string userName = _uow.UserRepository.GetAll(x => x.Id == uid).Select(x => x.Name).FirstOrDefault();
+
+                if (!string.IsNullOrEmpty(fcmToken))
+                {
+                    notification.DeviceId = fcmToken;
+                    notification.Title = Constants.PostLikeNotificationTitle;
+                    notification.Body = userName + Constants.PostLikeNotificationBody;
+                    _notificationHelper.SendNotification(notification);
+                }
             }
             else
             {
@@ -147,9 +159,9 @@ namespace Brandsome.BLL.Services
             responseModel.StatusCode = 200;
             responseModel.Data = new DataModel { Data = "", Message = $"Post {(isLike ? "liked" : "disliked")} successfully" };
             return responseModel;
-        }  
+        }
 
-        public async Task<ResponseModel> LikeList(string uid,int postId, HttpRequest request)
+        public async Task<ResponseModel> LikeList(string uid, int postId, HttpRequest request)
         {
             ResponseModel responseModel = new ResponseModel();
 
@@ -166,10 +178,10 @@ namespace Brandsome.BLL.Services
             postLike = await _uow.PostLikeRepository.GetAll(pl => pl.PostId == postId && pl.IsDeleted == false && pl.User.IsDeleted == false).Select(x => new PostLike_VM
             {
                 Id = x.Id,
-                 Name=x.User.Name,
-                  Image= $"{request.Scheme}://{request.Host}/Images/{x.User.Image}".Trim()
+                Name = x.User.Name,
+                Image = $"{request.Scheme}://{request.Host}/Images/{x.User.Image}".Trim()
             }).ToListAsync();
-           
+
             responseModel.ErrorMessage = "";
             responseModel.StatusCode = 200;
             responseModel.Data = new DataModel { Data = postLike, Message = "" };

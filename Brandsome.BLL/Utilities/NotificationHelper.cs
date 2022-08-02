@@ -42,10 +42,7 @@ namespace Brandsome.BLL.Utilities
                     {
                         title = "Anomaly Detected",
                         body = notificationModel.Body,
-                        patientId = notificationModel.PatientId,
-                        firstName = notificationModel.FirstName,
-                        middleName = notificationModel.MiddleName,
-                        lastName = notificationModel.LastName,
+                 
                         sound = "default",
                         //android_channel_id= "easyapproach"
                     },
@@ -66,10 +63,6 @@ namespace Brandsome.BLL.Utilities
                         type = "order",
                         title = "Anomaly Detected",
                         body = notificationModel.Body,
-                        patientId = notificationModel.PatientId,
-                        firstName = notificationModel.FirstName,
-                        middleName = notificationModel.MiddleName,
-                        lastName = notificationModel.LastName,
                         //routePage= "order",
                         click_action = "FLUTTER_NOTIFICATION_CLICK"
                     }
