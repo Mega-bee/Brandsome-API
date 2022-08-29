@@ -43,6 +43,7 @@ namespace Brandsome.DAL.Models
         public virtual DbSet<ErrorLog> ErrorLogs { get; set; }
         public virtual DbSet<Gender> Genders { get; set; }
         public virtual DbSet<Interest> Interests { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
         public virtual DbSet<Post> Posts { get; set; }
         public virtual DbSet<PostLike> PostLikes { get; set; }
         public virtual DbSet<PostLikeLog> PostLikeLogs { get; set; }
@@ -241,6 +242,34 @@ namespace Brandsome.DAL.Models
                     .WithMany(p => p.Interests)
                     .HasForeignKey(d => d.UserId)
                     .HasConstraintName("FK_Interest_AspNetUsers");
+            });
+
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.HasOne(d => d.Business)
+                    .WithMany(p => p.Notifications)
+                    .HasForeignKey(d => d.BusinessId)
+                    .HasConstraintName("FK_Notification_Business");
+
+                entity.HasOne(d => d.Initiator)
+                    .WithMany(p => p.NotificationInitiators)
+                    .HasForeignKey(d => d.InitiatorId)
+                    .HasConstraintName("FK_Notification_AspNetUsers1");
+
+                entity.HasOne(d => d.Post)
+                    .WithMany(p => p.Notifications)
+                    .HasForeignKey(d => d.PostId)
+                    .HasConstraintName("FK_Notification_Post");
+
+                entity.HasOne(d => d.Review)
+                    .WithMany(p => p.Notifications)
+                    .HasForeignKey(d => d.ReviewId)
+                    .HasConstraintName("FK_Notification_BusinessReview");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.NotificationUsers)
+                    .HasForeignKey(d => d.UserId)
+                    .HasConstraintName("FK_Notification_AspNetUsers");
             });
 
             modelBuilder.Entity<Post>(entity =>

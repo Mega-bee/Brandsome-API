@@ -17,6 +17,7 @@ namespace Brandsome.DAL.Models
             BusinessPhoneClicks = new HashSet<BusinessPhoneClick>();
             BusinessReviews = new HashSet<BusinessReview>();
             BusinessServices = new HashSet<BusinessService>();
+            Notifications = new HashSet<Notification>();
         }
 
         [Key]
@@ -54,5 +55,7 @@ namespace Brandsome.DAL.Models
         public virtual ICollection<BusinessReview> BusinessReviews { get; set; }
         [InverseProperty("Business")]
         public virtual ICollection<BusinessService> BusinessServices { get; set; }
+        [InverseProperty("Business")]
+        public virtual ICollection<Notification> Notifications { get; set; }
     }
 }

@@ -27,7 +27,7 @@ namespace Brandsome.BLL.Utilities
             _fcmSettings = _configuration.GetSection("FcmNotification");
             _context = context;
         }
-        public bool SendNotification(NotificationModel notificationModel)
+        public async Task<bool> SendNotification(NotificationModel notificationModel)
         {
             try
             {
@@ -90,11 +90,19 @@ namespace Brandsome.BLL.Utilities
                                 var response = Newtonsoft.Json.JsonConvert.DeserializeObject<object>(responseFromFirebaseServer);
                                 if (response != null)
                                 {
-                                    //var prof = _context.Orders.Where(x => x.Id == notificationModel.OrderId)
-                                    //           .Select(x => new
-                                    //           {
-                                    //               x.ProfileId
-                                    //           }).FirstOrDefault();
+                                    Notification notification = new Notification()
+                                    {
+                                        EventId = notificationModel.EventId,
+                                        InitiatorId = notificationModel.InitiatorId,
+                                        UserId = notificationModel.UserId,
+                                        BusinessId = notificationModel.BusinessId,
+                                        PostId = notificationModel.PostId,
+                                        CreatedDate = DateTime.UtcNow,
+                                        ReviewId = notificationModel.ReviewId,
+
+                                    };
+                                    await _context.Notifications.AddAsync(notification);
+                                    await _context.SaveChangesAsync();
 
                                     return true;
                                 }

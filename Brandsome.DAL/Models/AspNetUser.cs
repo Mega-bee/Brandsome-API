@@ -20,6 +20,8 @@ namespace Brandsome.DAL.Models
             BusinessViews = new HashSet<BusinessView>();
             Businesses = new HashSet<Business>();
             Interests = new HashSet<Interest>();
+            NotificationInitiators = new HashSet<Notification>();
+            NotificationUsers = new HashSet<Notification>();
             PostLikeLogs = new HashSet<PostLikeLog>();
             PostLikes = new HashSet<PostLike>();
             PostViews = new HashSet<PostView>();
@@ -89,6 +91,10 @@ namespace Brandsome.DAL.Models
         public virtual ICollection<Business> Businesses { get; set; }
         [InverseProperty("User")]
         public virtual ICollection<Interest> Interests { get; set; }
+        [InverseProperty("Initiator")]
+        public virtual ICollection<Notification> NotificationInitiators { get; set; }
+        [InverseProperty("User")]
+        public virtual ICollection<Notification> NotificationUsers { get; set; }
         [InverseProperty("User")]
         public virtual ICollection<PostLikeLog> PostLikeLogs { get; set; }
         [InverseProperty("User")]

@@ -12,6 +12,7 @@ namespace Brandsome.DAL.Models
         public Post()
         {
             CampaignHistories = new HashSet<CampaignHistory>();
+            Notifications = new HashSet<Notification>();
             PostLikeLogs = new HashSet<PostLikeLog>();
             PostLikes = new HashSet<PostLike>();
             PostMedia = new HashSet<PostMedium>();
@@ -40,6 +41,8 @@ namespace Brandsome.DAL.Models
         public virtual BusinessService BusinessService { get; set; }
         [InverseProperty("Post")]
         public virtual ICollection<CampaignHistory> CampaignHistories { get; set; }
+        [InverseProperty("Post")]
+        public virtual ICollection<Notification> Notifications { get; set; }
         [InverseProperty("Post")]
         public virtual ICollection<PostLikeLog> PostLikeLogs { get; set; }
         [InverseProperty("Post")]

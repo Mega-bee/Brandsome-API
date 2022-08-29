@@ -109,18 +109,17 @@ namespace Brandsome.BLL.Services
         {
             ResponseModel responseModel = new ResponseModel();
             NotificationModel notification = new NotificationModel();
-            string fcmToken = "";
 
-            Post currPost = await _uow.PostRepository.GetFirst(p => p.Id == postId && p.IsDeleted == false);
+            bool postExists =  _uow.PostRepository.CheckIfExists(p => p.Id == postId && p.IsDeleted == false);
             PostLike postLike = null;
-            if (currPost == null)
+            if (!postExists)
             {
                 responseModel.ErrorMessage = "Post not found";
                 responseModel.StatusCode = 404;
                 responseModel.Data = new DataModel { Data = "", Message = "" };
                 return responseModel;
             }
-            fcmToken = await _uow.PostRepository.GetAll(p=> p.Id == postId && p.IsDeleted == false).Select(p=> p.BusinessCity.Business.User.FcmToken).FirstOrDefaultAsync();
+            var postUserInfo = await _uow.PostRepository.GetAll(p=> p.Id == postId && p.IsDeleted == false).Select(p=> new {FcmToken= p.BusinessCity.Business.User.FcmToken ,UserId = p.BusinessCity.Business.UserId }).FirstOrDefaultAsync();
             PostLikeLog postLikeLog = new PostLikeLog()
             {
                 CreatedDate = DateTime.UtcNow,
@@ -143,12 +142,15 @@ namespace Brandsome.BLL.Services
                 await _uow.PostLikeRepository.Create(postLike);
                 string userName = _uow.UserRepository.GetAll(x => x.Id == uid).Select(x => x.Name).FirstOrDefault();
 
-                if (!string.IsNullOrEmpty(fcmToken))
+                if (!string.IsNullOrEmpty(postUserInfo.FcmToken))
                 {
-                    notification.DeviceId = fcmToken;
+                    notification.DeviceId = postUserInfo.FcmToken;
                     notification.Title = Constants.PostLikeNotificationTitle;
                     notification.Body = userName + Constants.PostLikeNotificationBody;
-                    _notificationHelper.SendNotification(notification);
+                    notification.UserId = postUserInfo.UserId;
+                    notification.InitiatorId = uid;
+                    notification.PostId = postId;
+                    await _notificationHelper.SendNotification(notification);
                 }
             }
             else

@@ -9,6 +9,11 @@ namespace Brandsome.DAL.Models
     [Table("BusinessReview")]
     public partial class BusinessReview
     {
+        public BusinessReview()
+        {
+            Notifications = new HashSet<Notification>();
+        }
+
         [Key]
         public int Id { get; set; }
         public int? BusinessId { get; set; }
@@ -28,5 +33,7 @@ namespace Brandsome.DAL.Models
         [ForeignKey("UserId")]
         [InverseProperty("BusinessReviews")]
         public virtual AspNetUser User { get; set; }
+        [InverseProperty("Review")]
+        public virtual ICollection<Notification> Notifications { get; set; }
     }
 }

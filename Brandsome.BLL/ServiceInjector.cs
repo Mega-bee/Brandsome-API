@@ -38,6 +38,7 @@ namespace Brandsome.BLL
             _services.AddScoped<IPostsBL, PostsBL>();
             _services.AddScoped<IGeneralBL, GeneralBL>();
             _services.AddScoped<IUnitOfWork, UnitOfWork>();
+            _services.AddScoped<INotificationBL, NotificationBL>();
             _services.AddScoped<IGenericRepos<AspNetUser>, GenericRepos<AspNetUser>>();
             _services.AddScoped<IGenericRepos<Business>, GenericRepos<Business>>();
             _services.AddScoped<IGenericRepos<City>, GenericRepos<City>>();
@@ -56,6 +57,7 @@ namespace Brandsome.BLL
             _services.AddScoped<IGenericRepos<PostView>, GenericRepos<PostView>>();
             _services.AddScoped<IGenericRepos<Device>, GenericRepos<Device>>();
             _services.AddScoped<IGenericRepos<BusinessView>, GenericRepos<BusinessView>>();
+            _services.AddScoped<IGenericRepos<Notification>, GenericRepos<Notification>>();
             _services.AddScoped<NotificationHelper>();
             _services.AddScoped<IConverters,Converters>();
             _services.AddScoped<ValidationFilterAttribute>();

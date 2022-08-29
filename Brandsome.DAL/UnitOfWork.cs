@@ -41,6 +41,7 @@ namespace Brandsome.DAL
         private IBusinessFollowLogRepository businessFollowLogRepository;
         private IBusinessViewRepository businessViewRepository;
         private IInterestRepository interestRepository;
+        private INotificationRepo notificationRepo;
 
         #endregion
 
@@ -66,6 +67,7 @@ namespace Brandsome.DAL
         public IBusinessFollowLogRepository BusinessFollowLogRepository => businessFollowLogRepository ?? new BusinessFollowLogRepository(_context);
         public IBusinessViewRepository BusinessViewRepository => businessViewRepository ?? new BusinessViewRepository(_context);
         public IInterestRepository InterestRepository => interestRepository ?? new InterestRepository(_context);
+        public INotificationRepo NotificationRepo => notificationRepo ?? new NotificationRepo(_context);
 
         #endregion
 
